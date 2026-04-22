@@ -1292,9 +1292,9 @@ body.topic-page { padding-top: 0; }
   #hero .badge,
   #hero .badge::after,
   #hero .btn-primary,
-  .pulse-ring--alt,
-  .pulse-ring--accent { animation: none !important; }
+  #hero .pulse-ring--alt,
+  #hero .pulse-ring--accent { animation: none !important; }
   #hero .hero-orbs,
-  .pulse-ring--alt,
-  .pulse-ring--accent { display: none; }
+  #hero .pulse-ring--alt,
+  #hero .pulse-ring--accent { display: none; }
 }
