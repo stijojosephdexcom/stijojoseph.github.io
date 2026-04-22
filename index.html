@@ -3,510 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="An interactive guide to embedded systems: microcontrollers, RTOS, interrupts, peripherals and more. With clickable deep-dives, live animations and quizzes." />
   <title>Embedded Systems — Interactive Guide</title>
-  <style>
-    /* ─── Reset & Custom Properties ─────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:         #0d1117;
-      --bg2:        #161b22;
-      --bg3:        #21262d;
-      --border:     #30363d;
-      --text:       #e6edf3;
-      --muted:      #8b949e;
-      --accent:     #00d2ff;
-      --accent2:    #7ee787;
-      --accent3:    #ff7b72;
-      --accent4:    #d2a8ff;
-      --accent5:    #ffa657;
-      --card-glow:  0 0 20px rgba(0,210,255,.15), 0 4px 24px rgba(0,0,0,.5);
-      --transition: .35s cubic-bezier(.4,0,.2,1);
-      --radius:     12px;
-    }
-    [data-theme="light"] {
-      --bg:   #f0f6fc;
-      --bg2:  #ffffff;
-      --bg3:  #e8f0f8;
-      --border: #d0d7de;
-      --text: #1f2328;
-      --muted:#57606a;
-      --card-glow: 0 0 20px rgba(0,210,255,.08), 0 4px 24px rgba(0,0,0,.12);
-    }
-
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      transition: background var(--transition), color var(--transition);
-    }
-
-    /* ─── Scrollbar ──────────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
-
-    /* ─── Utility ────────────────────────────────────────────── */
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-    .badge {
-      display: inline-flex; align-items: center; gap: .35rem;
-      font-size: .75rem; font-weight: 600; letter-spacing: .05em;
-      padding: .25rem .65rem; border-radius: 999px;
-      background: rgba(0,210,255,.12); color: var(--accent);
-      border: 1px solid rgba(0,210,255,.25); text-transform: uppercase;
-    }
-    .section-title {
-      font-size: clamp(1.75rem, 4vw, 2.75rem);
-      font-weight: 700; line-height: 1.2;
-      background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .section-sub { color: var(--muted); font-size: 1.05rem; margin-top: .6rem; }
-
-    /* ─── NAV ────────────────────────────────────────────────── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      backdrop-filter: blur(12px);
-      background: rgba(13,17,23,.7);
-      border-bottom: 1px solid var(--border);
-      transition: background var(--transition);
-    }
-    [data-theme="light"] nav { background: rgba(240,246,252,.8); }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px;
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: .6rem;
-      font-size: 1.15rem; font-weight: 700; color: var(--accent);
-      text-decoration: none;
-    }
-    .nav-logo svg { flex-shrink: 0; }
-    .nav-links {
-      display: flex; gap: 1.5rem; list-style: none;
-    }
-    .nav-links a {
-      font-size: .9rem; color: var(--muted); text-decoration: none;
-      transition: color var(--transition);
-    }
-    .nav-links a:hover { color: var(--accent); }
-    #theme-btn {
-      background: var(--bg3); border: 1px solid var(--border);
-      color: var(--text); padding: .4rem .75rem; border-radius: 8px;
-      cursor: pointer; font-size: .85rem; transition: all var(--transition);
-      display: flex; align-items: center; gap: .4rem;
-    }
-    #theme-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ─── HERO ───────────────────────────────────────────────── */
-    #hero {
-      min-height: 100vh;
-      display: grid; place-items: center;
-      position: relative; overflow: hidden;
-      padding-top: 60px;
-    }
-    #circuit-canvas {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      opacity: .35;
-    }
-    .hero-content {
-      position: relative; z-index: 2; text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
-      padding: 4rem 1.5rem;
-    }
-    .hero-title {
-      font-size: clamp(2.5rem, 7vw, 5rem);
-      font-weight: 800; line-height: 1.1; letter-spacing: -.03em;
-      background: linear-gradient(135deg, #00d2ff 0%, #7ee787 50%, #d2a8ff 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-sub {
-      font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--muted);
-      max-width: 640px; line-height: 1.65;
-    }
-    .hero-cta {
-      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
-    }
-    .btn-primary, .btn-outline {
-      padding: .7rem 1.6rem; border-radius: 10px; font-size: .95rem;
-      font-weight: 600; cursor: pointer; text-decoration: none;
-      transition: all var(--transition); border: 2px solid transparent;
-      display: inline-flex; align-items: center; gap: .5rem;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #00d2ff, #7ee787);
-      color: #0d1117;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,210,255,.35); }
-    .btn-outline {
-      background: transparent; border-color: var(--border); color: var(--text);
-    }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
-
-    .hero-stats {
-      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
-      margin-top: .5rem;
-    }
-    .stat { text-align: center; }
-    .stat-num {
-      font-size: 2rem; font-weight: 700; color: var(--accent);
-      display: block;
-    }
-    .stat-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-
-    /* ─── SECTIONS shared ────────────────────────────────────── */
-    section { padding: 6rem 0; }
-    section:nth-child(odd) { background: var(--bg); }
-    section:nth-child(even) { background: var(--bg2); }
-    .section-head { text-align: center; margin-bottom: 3.5rem; }
-
-    /* ─── CONCEPTS GRID ──────────────────────────────────────── */
-    .concepts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-    .concept-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.8rem;
-      cursor: pointer;
-      transition: all var(--transition);
-      position: relative; overflow: hidden;
-    }
-    [data-theme="light"] .concept-card { background: var(--bg3); }
-    .concept-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--card-accent,#00d2ff) 0%, transparent 60%);
-      opacity: 0; transition: opacity var(--transition);
-      pointer-events: none;
-    }
-    .concept-card:hover::before { opacity: .06; }
-    .concept-card:hover {
-      border-color: var(--card-accent, var(--accent));
-      transform: translateY(-4px);
-      box-shadow: var(--card-glow);
-    }
-    .card-icon {
-      width: 48px; height: 48px; border-radius: 10px;
-      display: grid; place-items: center; font-size: 1.5rem;
-      margin-bottom: 1rem;
-      background: rgba(0,210,255,.1);
-    }
-    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
-    .card-text { color: var(--muted); font-size: .9rem; line-height: 1.65; }
-    .card-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
-    .tag {
-      font-size: .72rem; padding: .2rem .6rem; border-radius: 999px;
-      background: var(--bg3); color: var(--muted); border: 1px solid var(--border);
-    }
-
-    /* ─── INTERACTIVE DEMO / TABS ────────────────────────────── */
-    #demo { background: var(--bg) !important; }
-    .tabs-wrapper { position: relative; }
-    .tab-list {
-      display: flex; gap: .3rem; flex-wrap: wrap;
-      border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
-    }
-    .tab-btn {
-      padding: .6rem 1.1rem; border: none; background: transparent;
-      color: var(--muted); font-size: .9rem; font-weight: 500; cursor: pointer;
-      border-radius: 8px 8px 0 0; transition: all var(--transition);
-      position: relative;
-    }
-    .tab-btn.active { color: var(--accent); }
-    .tab-btn.active::after {
-      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-      height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
-    }
-    .tab-btn:hover { color: var(--accent); background: rgba(0,210,255,.05); }
-    .tab-panel { display: none; animation: fadeUp .35s ease; }
-    .tab-panel.active { display: block; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .demo-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-    }
-    @media (max-width: 768px) { .demo-grid { grid-template-columns: 1fr; } }
-
-    .code-block {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-    }
-    .code-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .65rem 1rem; border-bottom: 1px solid var(--border);
-      background: var(--bg3);
-    }
-    .code-dots { display: flex; gap: .4rem; }
-    .code-dots span {
-      width: 12px; height: 12px; border-radius: 50%;
-    }
-    .code-dots span:nth-child(1) { background: #ff5f56; }
-    .code-dots span:nth-child(2) { background: #ffbd2e; }
-    .code-dots span:nth-child(3) { background: #27c93f; }
-    .code-lang { font-size: .75rem; color: var(--muted); font-family: monospace; }
-    .copy-btn {
-      font-size: .75rem; color: var(--muted); background: none; border: none;
-      cursor: pointer; padding: .2rem .5rem; border-radius: 5px;
-      transition: all var(--transition);
-    }
-    .copy-btn:hover { color: var(--accent); background: rgba(0,210,255,.1); }
-    pre {
-      padding: 1.2rem; overflow-x: auto; font-size: .82rem;
-      line-height: 1.7; font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
-    }
-    .kw  { color: #ff7b72; }
-    .fn  { color: #d2a8ff; }
-    .str { color: #a5d6ff; }
-    .cmt { color: #8b949e; font-style: italic; }
-    .num { color: #79c0ff; }
-    .pp  { color: #ffa657; }
-    .ty  { color: #7ee787; }
-
-    .demo-info {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.5rem;
-    }
-    .demo-info h3 { font-size: 1.15rem; margin-bottom: .75rem; color: var(--accent); }
-    .demo-info p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: .9rem; }
-    .info-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-    .info-list li {
-      display: flex; gap: .6rem; align-items: flex-start;
-      font-size: .88rem; color: var(--muted);
-    }
-    .info-list li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: .1rem; }
-
-    /* ─── ARCHITECTURE DIAGRAM ───────────────────────────────── */
-    .arch-diagram {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 2rem;
-      overflow-x: auto;
-    }
-    .arch-svg { width: 100%; max-width: 900px; display: block; margin: 0 auto; }
-
-    /* ─── PERIPHERAL CARDS ───────────────────────────────────── */
-    .periph-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.2rem;
-    }
-    .periph-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.4rem;
-      transition: all var(--transition);
-    }
-    [data-theme="light"] .periph-card { background: var(--bg3); }
-    .periph-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .periph-head { display: flex; align-items: center; gap: .8rem; margin-bottom: .9rem; }
-    .periph-icon {
-      width: 40px; height: 40px; border-radius: 8px;
-      display: grid; place-items: center; font-size: 1.2rem;
-      background: rgba(0,210,255,.1); flex-shrink: 0;
-    }
-    .periph-name { font-weight: 700; font-size: 1rem; }
-    .periph-full { font-size: .75rem; color: var(--muted); }
-    .periph-desc { font-size: .875rem; color: var(--muted); line-height: 1.6; }
-    .periph-speed {
-      margin-top: .75rem; font-size: .78rem; color: var(--accent2);
-      display: flex; align-items: center; gap: .3rem;
-    }
-
-    /* ─── TIMELINE ───────────────────────────────────────────── */
-    .timeline { position: relative; padding-left: 2rem; }
-    .timeline::before {
-      content: ''; position: absolute; left: .4rem; top: 0; bottom: 0;
-      width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent4));
-      border-radius: 2px;
-    }
-    .tl-item {
-      position: relative; padding: 0 0 2.5rem 1.5rem;
-      opacity: 0; transform: translateX(-20px);
-      transition: all .6s ease;
-    }
-    .tl-item.visible { opacity: 1; transform: translateX(0); }
-    .tl-dot {
-      position: absolute; left: -1.75rem; top: .25rem;
-      width: 14px; height: 14px; border-radius: 50%;
-      background: var(--accent); border: 2px solid var(--bg);
-      box-shadow: 0 0 8px var(--accent);
-    }
-    .tl-year {
-      font-size: .78rem; color: var(--accent); font-weight: 700;
-      letter-spacing: .06em; text-transform: uppercase; margin-bottom: .3rem;
-    }
-    .tl-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
-    .tl-desc { font-size: .88rem; color: var(--muted); line-height: 1.65; }
-
-    /* ─── QUIZ ───────────────────────────────────────────────── */
-    .quiz-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 2rem;
-      max-width: 720px; margin: 0 auto;
-    }
-    [data-theme="light"] .quiz-card { background: var(--bg3); }
-    .quiz-q {
-      font-size: 1.1rem; font-weight: 600; margin-bottom: 1.4rem;
-      line-height: 1.55;
-    }
-    .quiz-options { display: flex; flex-direction: column; gap: .7rem; }
-    .quiz-opt {
-      padding: .85rem 1.2rem; border-radius: 10px;
-      border: 1.5px solid var(--border); background: var(--bg3);
-      cursor: pointer; font-size: .9rem; transition: all var(--transition);
-      text-align: left; color: var(--text);
-    }
-    .quiz-opt:hover { border-color: var(--accent); background: rgba(0,210,255,.05); }
-    .quiz-opt.correct { border-color: var(--accent2); background: rgba(126,231,135,.1); color: var(--accent2); }
-    .quiz-opt.wrong   { border-color: var(--accent3); background: rgba(255,123,114,.1); color: var(--accent3); }
-    .quiz-opt.disabled { pointer-events: none; }
-    .quiz-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 1.5rem; flex-wrap: wrap; gap: .8rem;
-    }
-    .quiz-progress { font-size: .85rem; color: var(--muted); }
-    .quiz-score { font-size: .9rem; font-weight: 600; color: var(--accent2); }
-    #quiz-result {
-      text-align: center; padding: 1.5rem 0; display: none;
-    }
-    #quiz-result .result-emoji { font-size: 3rem; margin-bottom: .5rem; }
-    #quiz-result p { color: var(--muted); margin-top: .4rem; }
-
-    /* ─── PROGRESS BARS ──────────────────────────────────────── */
-    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem 2rem; }
-    @media (max-width: 600px) { .skill-grid { grid-template-columns: 1fr; } }
-    .skill-item { }
-    .skill-row { display: flex; justify-content: space-between; margin-bottom: .35rem; }
-    .skill-name { font-size: .9rem; font-weight: 500; }
-    .skill-pct  { font-size: .85rem; color: var(--muted); }
-    .skill-bar {
-      height: 8px; background: var(--bg3); border-radius: 999px; overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .skill-fill {
-      height: 100%; border-radius: 999px; width: 0;
-      transition: width 1.2s cubic-bezier(.4,0,.2,1);
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-    }
-
-    /* ─── GLOSSARY ───────────────────────────────────────────── */
-    .glossary-search {
-      width: 100%; padding: .75rem 1.1rem; border-radius: 10px;
-      border: 1.5px solid var(--border); background: var(--bg2);
-      color: var(--text); font-size: .95rem; margin-bottom: 1.5rem;
-      outline: none; transition: border-color var(--transition);
-    }
-    .glossary-search:focus { border-color: var(--accent); }
-    .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-    .gloss-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.2rem;
-      transition: all var(--transition);
-    }
-    [data-theme="light"] .gloss-card { background: var(--bg3); }
-    .gloss-card:hover { border-color: var(--accent4); }
-    .gloss-term { font-weight: 700; font-size: 1rem; color: var(--accent4); margin-bottom: .4rem; }
-    .gloss-def  { font-size: .855rem; color: var(--muted); line-height: 1.65; }
-    .gloss-card.hidden { display: none; }
-
-    /* ─── FOOTER ─────────────────────────────────────────────── */
-    footer {
-      background: var(--bg2); border-top: 1px solid var(--border);
-      padding: 3rem 0 2rem; text-align: center;
-    }
-    .footer-logo {
-      font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: .6rem;
-    }
-    .footer-sub { font-size: .85rem; color: var(--muted); margin-bottom: 2rem; }
-    .footer-links {
-      display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
-      margin-bottom: 2rem;
-    }
-    .footer-links a { color: var(--muted); text-decoration: none; font-size: .875rem; transition: color var(--transition); }
-    .footer-links a:hover { color: var(--accent); }
-    .footer-copy { font-size: .78rem; color: var(--muted); }
-
-    /* ─── Scroll-in animation ────────────────────────────────── */
-    .reveal {
-      opacity: 0; transform: translateY(30px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    /* ─── RESPONSIVE NAV ─────────────────────────────────────── */
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .hero-stats { gap: 1.2rem; }
-    }
-
-    /* ─── Tooltip ────────────────────────────────────────────── */
-    [data-tip] { position: relative; cursor: help; }
-    [data-tip]::after {
-      content: attr(data-tip);
-      position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-      background: var(--bg3); border: 1px solid var(--border); color: var(--text);
-      font-size: .78rem; white-space: nowrap; padding: .35rem .7rem;
-      border-radius: 6px; pointer-events: none; opacity: 0;
-      transition: opacity .2s; z-index: 10;
-    }
-    [data-tip]:hover::after { opacity: 1; }
-
-    /* ─── pulse ring on hero ─────────────────────────────────── */
-    .pulse-ring {
-      position: absolute; width: 300px; height: 300px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,210,255,.07) 0%, transparent 70%);
-      animation: pulse 3.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); opacity: .7; }
-      50%      { transform: scale(1.25); opacity: .2; }
-    }
-
-    /* ─── Chip animation ─────────────────────────────────────── */
-    #chip-demo {
-      position: relative; width: 100%; max-width: 480px; margin: 0 auto;
-      aspect-ratio: 1 / .8; user-select: none;
-    }
-    .chip-svg { width: 100%; height: 100%; }
-    .chip-pin-group { transition: opacity .3s; cursor: pointer; }
-    .chip-pin-group:hover { opacity: .8; }
-    .pin-label { font-size: 10px; fill: var(--muted); font-family: monospace; }
-    .pin-active { animation: pinPulse .8s ease infinite alternate; }
-    @keyframes pinPulse { from { opacity: .4; } to { opacity: 1; } }
-  </style>
+  <link rel="stylesheet" href="assets/css/site.css" />
 </head>
 <body>
 
 <!-- ══════════════ NAV ══════════════════════════════════════════ -->
-<nav>
-  <div class="container nav-inner">
-    <a href="#hero" class="nav-logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2"/>
-        <path d="M6 7V5M10 7V4M14 7V5M18 7V4M6 17v2M10 17v3M14 17v2M18 17v3"/>
-      </svg>
-      EmbeddedSys
-    </a>
-    <ul class="nav-links">
-      <li><a href="#concepts">Concepts</a></li>
-      <li><a href="#demo">Code</a></li>
-      <li><a href="#peripherals">Peripherals</a></li>
-      <li><a href="#history">History</a></li>
-      <li><a href="#quiz">Quiz</a></li>
-      <li><a href="#glossary">Glossary</a></li>
-    </ul>
-    <button id="theme-btn">🌙 Dark</button>
-  </div>
-</nav>
+<div id="site-nav"></div>
 
 <!-- ══════════════ HERO ═════════════════════════════════════════ -->
 <section id="hero">
@@ -542,113 +46,125 @@
     </div>
     <div class="concepts-grid">
 
-      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+      <a class="concept-card reveal" style="--card-accent:#00d2ff" href="topics/mcu.html" data-topic="mcu" aria-label="Explore subtopic: Microcontroller (MCU)">
         <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">🧠</div>
         <div class="card-title">Microcontroller (MCU)</div>
         <div class="card-text">An MCU integrates CPU, RAM, Flash, and peripherals on a single chip. Popular families include ARM Cortex-M, AVR, PIC, and ESP32.</div>
         <div class="card-tags">
           <span class="tag">ARM Cortex-M</span><span class="tag">AVR</span><span class="tag">ESP32</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#7ee787">
+      <a class="concept-card reveal" style="--card-accent:#7ee787" href="topics/rtos.html" data-topic="rtos" aria-label="Explore subtopic: Real-Time OS (RTOS)">
         <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">⏱️</div>
         <div class="card-title">Real-Time OS (RTOS)</div>
         <div class="card-text">An RTOS provides deterministic task scheduling, prioritisation, and inter-task communication via queues, semaphores and mutexes.</div>
         <div class="card-tags">
           <span class="tag">FreeRTOS</span><span class="tag">Zephyr</span><span class="tag">ThreadX</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#ff7b72">
+      <a class="concept-card reveal" style="--card-accent:#ff7b72" href="topics/interrupts.html" data-topic="interrupts" aria-label="Explore subtopic: Interrupts & ISR">
         <div class="card-icon" style="background:rgba(255,123,114,.12); font-size:1.6rem">⚡</div>
         <div class="card-title">Interrupts & ISR</div>
         <div class="card-text">Interrupts allow the CPU to respond immediately to hardware events, pausing normal execution and calling an Interrupt Service Routine (ISR).</div>
         <div class="card-tags">
           <span class="tag">NVIC</span><span class="tag">ISR</span><span class="tag">Priority</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#d2a8ff">
+      <a class="concept-card reveal" style="--card-accent:#d2a8ff" href="topics/memory.html" data-topic="memory" aria-label="Explore subtopic: Memory Architecture">
         <div class="card-icon" style="background:rgba(210,168,255,.12); font-size:1.6rem">💾</div>
         <div class="card-title">Memory Architecture</div>
         <div class="card-text">Embedded systems use Flash (code), SRAM (runtime data), EEPROM (persistent config), and registers. Harvard vs. von Neumann architecture matters here.</div>
         <div class="card-tags">
           <span class="tag">Flash</span><span class="tag">SRAM</span><span class="tag">EEPROM</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#ffa657">
+      <a class="concept-card reveal" style="--card-accent:#ffa657" href="topics/dma.html" data-topic="dma" aria-label="Explore subtopic: DMA (Direct Memory Access)">
         <div class="card-icon" style="background:rgba(255,166,87,.12); font-size:1.6rem">🔄</div>
         <div class="card-title">DMA (Direct Memory Access)</div>
         <div class="card-text">DMA controllers transfer data between memory and peripherals without CPU involvement, greatly reducing latency and power consumption.</div>
         <div class="card-tags">
           <span class="tag">DMA Channels</span><span class="tag">Burst Mode</span><span class="tag">Circular</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+      <a class="concept-card reveal" style="--card-accent:#00d2ff" href="topics/timers-pwm.html" data-topic="timers-pwm" aria-label="Explore subtopic: Timers & PWM">
         <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">🕑</div>
         <div class="card-title">Timers & PWM</div>
         <div class="card-text">Hardware timers generate precise delays, measure frequencies, and produce PWM signals for motor control, LED dimming, and more.</div>
         <div class="card-tags">
           <span class="tag">PWM</span><span class="tag">Input Capture</span><span class="tag">Output Compare</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#7ee787">
+      <a class="concept-card reveal" style="--card-accent:#7ee787" href="topics/protocols.html" data-topic="protocols" aria-label="Explore subtopic: Communication Protocols">
         <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">📡</div>
         <div class="card-title">Communication Protocols</div>
         <div class="card-text">SPI, I²C, UART, CAN, USB — each protocol has trade-offs in speed, pin count, bus topology, and error detection.</div>
         <div class="card-tags">
           <span class="tag">SPI</span><span class="tag">I²C</span><span class="tag">UART</span><span class="tag">CAN</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#ff7b72">
+      <a class="concept-card reveal" style="--card-accent:#ff7b72" href="topics/power.html" data-topic="power" aria-label="Explore subtopic: Power Management">
         <div class="card-icon" style="background:rgba(255,123,114,.12); font-size:1.6rem">🔋</div>
         <div class="card-title">Power Management</div>
         <div class="card-text">Sleep modes (sleep, deep sleep, stop, standby) drastically reduce current draw. Wake sources include RTC, GPIO, UART, and ADC threshold.</div>
         <div class="card-tags">
           <span class="tag">Sleep Modes</span><span class="tag">LDO</span><span class="tag">DCDC</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#d2a8ff">
+      <a class="concept-card reveal" style="--card-accent:#d2a8ff" href="topics/watchdog.html" data-topic="watchdog" aria-label="Explore subtopic: Watchdog Timer (WDT)">
         <div class="card-icon" style="background:rgba(210,168,255,.12); font-size:1.6rem">🛡️</div>
         <div class="card-title">Watchdog Timer (WDT)</div>
         <div class="card-text">The WDT resets the MCU if software fails to "pet" it within a timeout, guarding against software hangs in safety-critical systems.</div>
         <div class="card-tags">
           <span class="tag">IWDG</span><span class="tag">WWDG</span><span class="tag">Timeout</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#ffa657">
+      <a class="concept-card reveal" style="--card-accent:#ffa657" href="topics/bootloader.html" data-topic="bootloader" aria-label="Explore subtopic: Bootloader">
         <div class="card-icon" style="background:rgba(255,166,87,.12); font-size:1.6rem">🔧</div>
         <div class="card-title">Bootloader</div>
         <div class="card-text">A bootloader runs before the main application, validating firmware integrity and enabling field updates (FOTA) over UART, USB, or wireless.</div>
         <div class="card-tags">
           <span class="tag">DFU</span><span class="tag">FOTA</span><span class="tag">CRC</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+      <a class="concept-card reveal" style="--card-accent:#00d2ff" href="topics/adc-dac.html" data-topic="adc-dac" aria-label="Explore subtopic: ADC / DAC">
         <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">📊</div>
         <div class="card-title">ADC / DAC</div>
         <div class="card-text">Analogue-to-Digital (ADC) and Digital-to-Analogue (DAC) converters bridge the analogue world of sensors and actuators with digital processing.</div>
         <div class="card-tags">
           <span class="tag">SAR ADC</span><span class="tag">Sigma-Delta</span><span class="tag">Resolution</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
-      <div class="concept-card reveal" style="--card-accent:#7ee787">
+      <a class="concept-card reveal" style="--card-accent:#7ee787" href="topics/debugging-jtag.html" data-topic="debugging-jtag" aria-label="Explore subtopic: Debugging & JTAG">
         <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">🔍</div>
         <div class="card-title">Debugging & JTAG</div>
         <div class="card-text">JTAG and SWD interfaces allow a debugger to halt execution, inspect registers, set breakpoints, and trace instruction flow in real time.</div>
         <div class="card-tags">
           <span class="tag">JTAG</span><span class="tag">SWD</span><span class="tag">OpenOCD</span>
         </div>
-      </div>
+        <span class="card-cta" aria-hidden="true">Explore →</span>
+      </a>
 
     </div>
   </div>
@@ -1297,6 +813,17 @@ IWDG-&gt;KR  = <span class="num">0xAAAA</span>; <span class="cmt">/* Reload coun
         <h3 id="result-title" style="font-size:1.4rem; font-weight:700"></h3>
         <p id="result-desc"></p>
         <button class="btn-primary" style="margin-top:1.2rem" onclick="resetQuiz()">↺ Try Again</button>
+
+        <div id="quiz-email-capture" class="subscribe-card" style="display:none; margin-top:1.6rem">
+          <h3>📌 Save your score</h3>
+          <p>Drop your email to bookmark your progress for next time. Stored privately in your browser only — nothing is sent anywhere.</p>
+          <form class="subscribe-form" data-source="quiz" novalidate>
+            <input type="email" placeholder="you@example.com" required aria-label="Email address">
+            <input type="text" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <button type="submit">Save my score</button>
+          </form>
+          <div class="privacy-note">Local-only storage · You can delete it any time from the footer.</div>
+        </div>
       </div>
       <div class="quiz-footer">
         <span class="quiz-progress" id="q-progress">Question 1 / 10</span>
@@ -1320,150 +847,17 @@ IWDG-&gt;KR  = <span class="num">0xAAAA</span>; <span class="cmt">/* Reload coun
 </section>
 
 <!-- ══════════════ FOOTER ═══════════════════════════════════════ -->
-<footer>
-  <div class="container">
-    <div class="footer-logo">⚙️ EmbeddedSys</div>
-    <div class="footer-sub">An interactive guide to embedded systems concepts</div>
-    <div class="footer-links">
-      <a href="#concepts">Concepts</a>
-      <a href="#demo">Code</a>
-      <a href="#peripherals">Peripherals</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#history">History</a>
-      <a href="#quiz">Quiz</a>
-      <a href="#glossary">Glossary</a>
-    </div>
-    <div class="footer-copy">Built with pure HTML · CSS · JavaScript — no frameworks, no dependencies</div>
-  </div>
-</footer>
+<div id="site-footer"></div>
 
 <!-- ══════════════ JAVASCRIPT ═══════════════════════════════════ -->
-<script>
-/* ─── Theme toggle ─────────────────────────────────────────── */
-const themeBtn = document.getElementById('theme-btn');
-let isDark = true;
-themeBtn.addEventListener('click', () => {
-  isDark = !isDark;
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  themeBtn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
-});
+<script src="assets/js/site.js" defer></script>
+<script defer>
+/* Page-specific behaviour for the home page only. Theme toggle, circuit
+   canvas, scroll-reveal, counters, command palette, footer/nav injection
+   and the localStorage email-capture form all live in site.js. */
+document.addEventListener('DOMContentLoaded', () => {
 
-/* ─── Circuit Board Canvas ─────────────────────────────────── */
-(function() {
-  const canvas = document.getElementById('circuit-canvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, nodes, tick = 0;
-
-  function resize() {
-    W = canvas.width  = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
-    init();
-  }
-
-  function init() {
-    nodes = [];
-    const cols = Math.ceil(W / 60), rows = Math.ceil(H / 60);
-    for (let r = 0; r <= rows; r++) {
-      for (let c = 0; c <= cols; c++) {
-        nodes.push({
-          x: c * 60 + (Math.random() - .5) * 20,
-          y: r * 60 + (Math.random() - .5) * 20,
-          connected: Math.random() > .4
-        });
-      }
-    }
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    const isDk = document.documentElement.getAttribute('data-theme') !== 'light';
-    const lineColor = isDk ? '0,210,255' : '0,100,200';
-    const dotColor  = isDk ? '126,231,135' : '30,130,80';
-    tick++;
-
-    ctx.strokeStyle = `rgba(${lineColor},.25)`;
-    ctx.lineWidth = .8;
-    nodes.forEach((n, i) => {
-      if (!n.connected) return;
-      nodes.slice(i + 1).forEach(m => {
-        const d = Math.hypot(n.x - m.x, n.y - m.y);
-        if (d < 90 && m.connected) {
-          ctx.beginPath();
-          ctx.moveTo(n.x, n.y);
-          // L-shaped routing
-          const mid = (Math.random() > .5) ?
-            { x: n.x, y: m.y } : { x: m.x, y: n.y };
-          ctx.lineTo(mid.x, mid.y);
-          ctx.lineTo(m.x, m.y);
-          ctx.stroke();
-        }
-      });
-    });
-
-    // Draw nodes
-    nodes.forEach((n, i) => {
-      if (!n.connected) return;
-      const pulse = Math.sin(tick * .02 + i * .5) > .8;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, pulse ? 4 : 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = pulse
-        ? `rgba(${lineColor},1)`
-        : `rgba(${dotColor},.6)`;
-      ctx.fill();
-    });
-
-    // Travelling signal
-    const signalIdx = (Math.floor(tick / 2)) % nodes.length;
-    const sn = nodes[signalIdx];
-    ctx.beginPath();
-    ctx.arc(sn.x, sn.y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${lineColor},.9)`;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(sn.x, sn.y, 10, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${lineColor},.3)`;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  draw();
-})();
-
-/* ─── Counter animation ────────────────────────────────────── */
-function animateCounters() {
-  document.querySelectorAll('.counter').forEach(el => {
-    const target = +el.dataset.target;
-    let current = 0;
-    const step = Math.ceil(target / 30);
-    const timer = setInterval(() => {
-      current = Math.min(current + step, target);
-      el.textContent = current;
-      if (current >= target) clearInterval(timer);
-    }, 40);
-  });
-}
-// Trigger when hero is visible
-new IntersectionObserver((entries) => {
-  if (entries[0].isIntersecting) animateCounters();
-}, { threshold: .3 }).observe(document.getElementById('hero'));
-
-/* ─── Scroll reveal ────────────────────────────────────────── */
-const revealObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      revealObs.unobserve(e.target);
-    }
-  });
-}, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
-
-document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-
-/* ─── Timeline items reveal ────────────────────────────────── */
+/* ─── Timeline items reveal ────────────────────────────── */
 const tlObs = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
@@ -1472,9 +866,8 @@ const tlObs = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: .1 });
-document.querySelectorAll('.tl-item').forEach(el => tlObs.observe(el));
 
-/* ─── Skill bar observer ───────────────────────────────────── */
+/* ─── Skill bar observer ───────────────────────────────── */
 const skillObs = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
@@ -1486,7 +879,7 @@ const skillObs = new IntersectionObserver((entries) => {
   });
 }, { threshold: .2 });
 
-/* ─── Tab switching ────────────────────────────────────────── */
+/* ─── Tab switching ────────────────────────────────────── */
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1496,16 +889,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-/* ─── Copy code ────────────────────────────────────────────── */
-function copyCode(btn) {
+/* ─── Copy code ────────────────────────────────────────── */
+window.copyCode = function(btn) {
   const pre = btn.closest('.code-block').querySelector('pre');
   navigator.clipboard.writeText(pre.innerText).then(() => {
     btn.textContent = '✓ Copied!';
     setTimeout(() => btn.textContent = '⎘ Copy', 1800);
   });
-}
+};
 
-/* ─── Protocol comparison table ────────────────────────────── */
+/* ─── Protocol comparison table ────────────────────────── */
 const protocols = [
   ['UART',  '2 (TX, RX)',      'Up to 5 Mbps',    'Point-to-point',    '✓'],
   ['SPI',   '4 (SCK/MOSI/MISO/CS)', 'Up to 80 MHz', 'Master-slave',   '✓'],
@@ -1531,7 +924,7 @@ protocols.forEach((row, i) => {
   tbody.appendChild(tr);
 });
 
-/* ─── Skills data ───────────────────────────────────────────── */
+/* ─── Skills data ───────────────────────────────────────── */
 const skills = [
   { name: 'Microcontrollers',   pct: 95, color: '#00d2ff' },
   { name: 'RTOS / Scheduling',  pct: 82, color: '#7ee787' },
@@ -1557,7 +950,7 @@ skills.forEach(s => {
 });
 skillObs.observe(skillGrid);
 
-/* ─── Timeline data ─────────────────────────────────────────── */
+/* ─── Timeline data ─────────────────────────────────────── */
 const history = [
   { year: '1961', title: 'Apollo Guidance Computer', desc: 'The first recognisable embedded system — a custom IC-based computer weighing 32 kg, guiding humans to the Moon.' },
   { year: '1971', title: 'Intel 4004 — First Commercial MCU', desc: 'A 4-bit processor on a single chip. Originally designed for a calculator, it launched the microprocessor revolution.' },
@@ -1585,72 +978,30 @@ history.forEach(h => {
   tlObs.observe(div);
 });
 
-/* ─── Quiz data ─────────────────────────────────────────────── */
+/* ─── Quiz data ─────────────────────────────────────────── */
 const quizData = [
-  {
-    q: 'What does RTOS stand for?',
-    opts: ['Real-Time Operating System','Remote Task Operating Signal','Random Trigger Output Source','Relay Toggle Output Sensor'],
-    ans: 0
-  },
-  {
-    q: 'Which register in Cortex-M manages interrupt priorities?',
-    opts: ['SysTick','NVIC (Nested Vectored Interrupt Controller)','DWT','ITM'],
-    ans: 1
-  },
-  {
-    q: 'What is the purpose of a watchdog timer?',
-    opts: ['Measure elapsed time','Generate PWM signals','Reset the MCU if software hangs','Regulate supply voltage'],
-    ans: 2
-  },
-  {
-    q: 'SPI uses how many wires for a single slave?',
-    opts: ['2','3','4','6'],
-    ans: 2
-  },
-  {
-    q: 'I²C addresses are typically how many bits wide?',
-    opts: ['4-bit','7-bit (or 10-bit extended)','16-bit','32-bit'],
-    ans: 1
-  },
-  {
-    q: 'DMA stands for:',
-    opts: ['Data Management Access','Direct Memory Access','Dynamic Mapped Address','Discrete Module Arbitration'],
-    ans: 1
-  },
-  {
-    q: 'Which sleep mode on STM32L4 consumes approximately 1 µA while retaining SRAM?',
-    opts: ['Standby','STOP1','STOP2','Run (LP)'],
-    ans: 2
-  },
-  {
-    q: 'What is "bit-banging" in embedded systems?',
-    opts: [
-      'A hardware fault recovery procedure',
-      'Implementing a serial protocol in software by toggling GPIO pins manually',
-      'A DMA burst transfer technique',
-      'Overclocking the CPU using a register write'
-    ],
-    ans: 1
-  },
-  {
-    q: 'CAN bus uses which physical layer?',
-    opts: ['Single-ended TTL','Differential pair (CANH/CANL)','Open-drain I²C','Optocoupler isolation'],
-    ans: 1
-  },
-  {
-    q: 'Harvard architecture differs from von Neumann because it:',
-    opts: [
-      'Uses a 64-bit data bus',
-      'Requires an external RAM chip',
-      'Has separate buses for instruction and data memory',
-      'Runs at a fixed 1 MHz clock'
-    ],
-    ans: 2
-  },
+  { q: 'What does RTOS stand for?',
+    opts: ['Real-Time Operating System','Remote Task Operating Signal','Random Trigger Output Source','Relay Toggle Output Sensor'], ans: 0 },
+  { q: 'Which register in Cortex-M manages interrupt priorities?',
+    opts: ['SysTick','NVIC (Nested Vectored Interrupt Controller)','DWT','ITM'], ans: 1 },
+  { q: 'What is the purpose of a watchdog timer?',
+    opts: ['Measure elapsed time','Generate PWM signals','Reset the MCU if software hangs','Regulate supply voltage'], ans: 2 },
+  { q: 'SPI uses how many wires for a single slave?',
+    opts: ['2','3','4','6'], ans: 2 },
+  { q: 'I²C addresses are typically how many bits wide?',
+    opts: ['4-bit','7-bit (or 10-bit extended)','16-bit','32-bit'], ans: 1 },
+  { q: 'DMA stands for:',
+    opts: ['Data Management Access','Direct Memory Access','Dynamic Mapped Address','Discrete Module Arbitration'], ans: 1 },
+  { q: 'Which sleep mode on STM32L4 consumes approximately 1 µA while retaining SRAM?',
+    opts: ['Standby','STOP1','STOP2','Run (LP)'], ans: 2 },
+  { q: 'What is "bit-banging" in embedded systems?',
+    opts: ['A hardware fault recovery procedure','Implementing a serial protocol in software by toggling GPIO pins manually','A DMA burst transfer technique','Overclocking the CPU using a register write'], ans: 1 },
+  { q: 'CAN bus uses which physical layer?',
+    opts: ['Single-ended TTL','Differential pair (CANH/CANL)','Open-drain I²C','Optocoupler isolation'], ans: 1 },
+  { q: 'Harvard architecture differs from von Neumann because it:',
+    opts: ['Uses a 64-bit data bus','Requires an external RAM chip','Has separate buses for instruction and data memory','Runs at a fixed 1 MHz clock'], ans: 2 },
 ];
-
 let qIdx = 0, score = 0;
-
 function loadQuestion() {
   const q = quizData[qIdx];
   document.getElementById('q-text').textContent = q.q;
@@ -1666,30 +1017,20 @@ function loadQuestion() {
     optsEl.appendChild(btn);
   });
 }
-
 function handleAnswer(selected, btn, correct) {
   document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
-  if (selected === correct) {
-    btn.classList.add('correct');
-    score++;
-  } else {
-    btn.classList.add('wrong');
-    document.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
-  }
+  if (selected === correct) { btn.classList.add('correct'); score++; }
+  else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt')[correct].classList.add('correct'); }
   document.getElementById('q-score').textContent = `Score: ${score}`;
   qIdx++;
-  if (qIdx < quizData.length) {
-    setTimeout(loadQuestion, 1200);
-  } else {
-    setTimeout(showResult, 1200);
-  }
+  if (qIdx < quizData.length) setTimeout(loadQuestion, 1200);
+  else setTimeout(showResult, 1200);
 }
-
 function showResult() {
   document.getElementById('quiz-question-area').style.display = 'none';
   const res = document.getElementById('quiz-result');
   res.style.display = 'block';
-  const pct = (score / quizData.length) * 100;
+  const pct = Math.round((score / quizData.length) * 100);
   document.getElementById('result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
   document.getElementById('result-title').textContent =
     pct >= 80 ? 'Expert Level!' : pct >= 50 ? 'Good Job!' : 'Keep Learning!';
@@ -1698,18 +1039,30 @@ function showResult() {
     (pct >= 80 ? 'Outstanding embedded systems knowledge!' :
      pct >= 50 ? 'Solid understanding — review the weak spots above.' :
      'Revisit the concepts and code examples, then try again.');
+  /* Persist best score locally */
+  try {
+    const prev = parseInt(localStorage.getItem('embsys-quiz-best') || '0', 10);
+    if (score > prev) localStorage.setItem('embsys-quiz-best', String(score));
+  } catch (e) { /* ignore */ }
+  /* Show "save score with email" form */
+  const ec = document.getElementById('quiz-email-capture');
+  if (ec) {
+    ec.style.display = 'block';
+    const f = ec.querySelector('.subscribe-form');
+    if (f) f.dataset.extra = `quiz-score:${score}/${quizData.length}`;
+  }
 }
-
-function resetQuiz() {
+window.resetQuiz = function() {
   qIdx = 0; score = 0;
   document.getElementById('quiz-question-area').style.display = 'block';
   document.getElementById('quiz-result').style.display = 'none';
+  const ec = document.getElementById('quiz-email-capture');
+  if (ec) ec.style.display = 'none';
   loadQuestion();
-}
-
+};
 loadQuestion();
 
-/* ─── Glossary data ─────────────────────────────────────────── */
+/* ─── Glossary data ─────────────────────────────────────── */
 const glossary = [
   { term: 'ADC',        def: 'Analogue-to-Digital Converter. Samples a continuous voltage and outputs a digital number proportional to the input.' },
   { term: 'AHB',        def: 'Advanced High-performance Bus. The primary system bus in ARM-based SoCs, carrying data between CPU, DMA, and fast peripherals.' },
@@ -1742,7 +1095,6 @@ const glossary = [
   { term: 'WDT',        def: 'Watchdog Timer. A countdown timer that resets the MCU if not periodically refreshed, protecting against software hangs.' },
   { term: 'Zero-copy',  def: 'A technique where data is never copied between buffers — usually via DMA or shared memory — maximising throughput.' },
 ];
-
 const glossGrid = document.getElementById('gloss-grid');
 glossary.forEach(g => {
   const div = document.createElement('div');
@@ -1751,7 +1103,6 @@ glossary.forEach(g => {
   div.innerHTML = `<div class="gloss-term">${g.term}</div><div class="gloss-def">${g.def}</div>`;
   glossGrid.appendChild(div);
 });
-
 document.getElementById('gloss-search').addEventListener('input', function() {
   const q = this.value.toLowerCase().trim();
   document.querySelectorAll('.gloss-card').forEach(card => {
@@ -1760,6 +1111,8 @@ document.getElementById('gloss-search').addEventListener('input', function() {
     card.classList.toggle('hidden', !match);
   });
 });
+
+}); /* DOMContentLoaded */
 </script>
 </body>
 </html>
