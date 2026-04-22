@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timers & PWM — Embedded Systems</title>
+  <meta name="description" content="Hardware timers, output compare, input capture and PWM. Drive a virtual LED and a virtual servo with sliders, watch the live oscilloscope." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#00d2ff}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#00d2ff; background:#00d2ff22; border-color:#00d2ff55">🕑</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 6 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Timers & PWM</h1>
+    <p class="topic-tagline">A hardware timer is a free-running counter — feed it the right comparison and it generates everything from precise delays to motor PWM.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>An MCU <strong>timer</strong> is a counter that increments on every tick of its clock. Configurable <strong>prescaler</strong> and <strong>auto-reload</strong> (ARR) values let it count from 0 to N at any frequency. A <strong>compare register</strong> (CCR) lets you fire an event — toggling a pin, raising an interrupt, or triggering a DMA — when the counter passes a chosen value.</p>
+      <p><strong>PWM (Pulse Width Modulation)</strong> is the simplest application: a square wave whose <em>duty cycle</em> (percent ON) is determined by the ratio CCR/ARR. PWM is how you dim LEDs, control servos, drive H-bridge motors and synthesise audio.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>A typical PWM channel is configured as:</p>
+      <ol>
+        <li>Pick the timer clock (e.g. APB1 at 84 MHz).</li>
+        <li>Set the prescaler so the counter ticks at a useful rate (e.g. ÷84 → 1 MHz, 1 µs per count).</li>
+        <li>Set ARR to define the period (e.g. 20 000 → 50 Hz for servos).</li>
+        <li>Set CCR to define the pulse width (e.g. 1500 → 1.5 ms = servo at 90°).</li>
+        <li>Configure the output mode as PWM mode 1 (active until CCR, inactive after).</li>
+      </ol>
+      <p><strong>Input capture</strong> is the inverse: latch the counter value when an external signal edge arrives, letting you measure pulse widths or frequencies.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>A live oscilloscope. Drag the duty-cycle and frequency sliders to change the PWM signal — the virtual LED brightness and the virtual servo angle update in real time.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <label>Duty <input type="range" id="pwm-duty" min="0" max="100" value="50"> <span id="pwm-duty-v">50%</span></label>
+          <label>Freq <input type="range" id="pwm-freq" min="1" max="200" value="50"> <span id="pwm-freq-v">50 Hz</span></label>
+        </div>
+        <canvas class="demo-canvas" id="pwm-canvas" width="800" height="200"></canvas>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem">
+          <div style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:1rem; text-align:center">
+            <div style="font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)">LED brightness</div>
+            <div id="pwm-led" style="margin:.6rem auto; width:60px; height:60px; border-radius:50%; background:#ffeb3b; box-shadow:0 0 24px #ffeb3b;"></div>
+            <div class="readout" style="display:inline-block"><div class="l">Avg V</div><div class="v" id="pwm-vavg">1.65 V</div></div>
+          </div>
+          <div style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:1rem; text-align:center">
+            <div style="font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)">Servo angle</div>
+            <svg id="pwm-servo" viewBox="0 0 120 80" width="120" height="80" style="margin:.4rem auto; display:block">
+              <rect x="40" y="55" width="40" height="20" rx="3" fill="#21262d" stroke="#30363d"/>
+              <line id="pwm-arm" x1="60" y1="55" x2="60" y2="15" stroke="#7ee787" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="60" cy="55" r="5" fill="#7ee787"/>
+            </svg>
+            <div class="readout" style="display:inline-block"><div class="l">Angle</div><div class="v" id="pwm-angle">90°</div></div>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>RC servo control</strong> — 50 Hz period, 1–2 ms pulse for 0–180° angle.</li>
+        <li><strong>LED dimming</strong> — 1 kHz PWM at variable duty cycle is invisible to the eye.</li>
+        <li><strong>BLDC motor commutation</strong> — three complementary PWM pairs with dead-time insertion.</li>
+        <li><strong>DC-DC buck regulator</strong> — high-frequency PWM (≥100 kHz) drives an inductor; the duty controls output voltage.</li>
+        <li><strong>Frequency measurement</strong> — input capture latches the timer count on each rising edge.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">C — STM32 PWM init</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre><span class="cmt">/* TIM3 channel 1 on PA6 — 1 kHz PWM, 50% duty */</span>
+htim3.Instance               = TIM3;
+htim3.Init.Prescaler         = <span class="num">83</span>;       <span class="cmt">/* 84 MHz / 84 = 1 MHz */</span>
+htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+htim3.Init.Period            = <span class="num">999</span>;      <span class="cmt">/* 1 MHz / 1000 = 1 kHz */</span>
+htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+<span class="fn">HAL_TIM_PWM_Init</span>(&amp;htim3);
+
+TIM_OC_InitTypeDef oc = {<span class="num">0</span>};
+oc.OCMode     = TIM_OCMODE_PWM1;
+oc.Pulse      = <span class="num">500</span>;             <span class="cmt">/* 50% of 1000 */</span>
+oc.OCPolarity = TIM_OCPOLARITY_HIGH;
+<span class="fn">HAL_TIM_PWM_ConfigChannel</span>(&amp;htim3, &amp;oc, TIM_CHANNEL_1);
+<span class="fn">HAL_TIM_PWM_Start</span>(&amp;htim3, TIM_CHANNEL_1);
+
+<span class="cmt">/* Change duty later */</span>
+__HAL_TIM_SET_COMPARE(&amp;htim3, TIM_CHANNEL_1, <span class="num">750</span>); <span class="cmt">/* 75% */</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'timers-pwm');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    const cv = document.getElementById('pwm-canvas');
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    let duty = 50, freq = 50;
+    function update() {
+      duty = +document.getElementById('pwm-duty').value;
+      freq = +document.getElementById('pwm-freq').value;
+      document.getElementById('pwm-duty-v').textContent = duty + '%';
+      document.getElementById('pwm-freq-v').textContent = freq + ' Hz';
+      // LED brightness
+      document.getElementById('pwm-led').style.opacity = (duty/100).toFixed(2);
+      document.getElementById('pwm-led').style.boxShadow = `0 0 ${4 + duty*0.4}px #ffeb3b`;
+      document.getElementById('pwm-vavg').textContent = (3.3 * duty / 100).toFixed(2) + ' V';
+      // Servo: 0% → 0°, 100% → 180°
+      const angle = duty * 1.8;
+      document.getElementById('pwm-angle').textContent = Math.round(angle) + '°';
+      const rad = (angle - 90) * Math.PI / 180;
+      const x2 = 60 + Math.cos(rad - Math.PI/2) * 40;
+      const y2 = 55 + Math.sin(rad - Math.PI/2) * 40;
+      const arm = document.getElementById('pwm-arm');
+      arm.setAttribute('x2', x2); arm.setAttribute('y2', y2);
+      drawScope();
+    }
+    function drawScope() {
+      ctx.clearRect(0, 0, W, H);
+      // grid
+      ctx.strokeStyle = 'rgba(255,255,255,.05)';
+      for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      // baselines
+      ctx.strokeStyle = '#30363d';
+      ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(W, 30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 170); ctx.lineTo(W, 170); ctx.stroke();
+      ctx.fillStyle = '#8b949e'; ctx.font = '11px monospace';
+      ctx.fillText('3.3 V', 4, 26); ctx.fillText('0 V', 4, 184);
+      // wave: show ~5 periods across the width (frequency only changes shape density)
+      const periods = Math.max(2, Math.round(freq / 12));
+      const periodPx = (W - 60) / periods;
+      const highPx = periodPx * (duty / 100);
+      ctx.strokeStyle = 'var(--topic-accent)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30, 170);
+      for (let p = 0; p < periods; p++) {
+        const x0 = 30 + p * periodPx;
+        ctx.lineTo(x0, 30);
+        ctx.lineTo(x0 + highPx, 30);
+        ctx.lineTo(x0 + highPx, 170);
+        ctx.lineTo(x0 + periodPx, 170);
+      }
+      ctx.stroke();
+      // duty annotation
+      ctx.fillStyle = 'var(--topic-accent)';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(duty + '% duty · ' + freq + ' Hz', W - 200, 195);
+    }
+    document.getElementById('pwm-duty').addEventListener('input', update);
+    document.getElementById('pwm-freq').addEventListener('input', update);
+    update();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>

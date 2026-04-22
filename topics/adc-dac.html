@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADC / DAC — Embedded Systems</title>
+  <meta name="description" content="Sampling and quantising analog signals — drag a wave and see how sample rate and bit depth change the digital reconstruction." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#00d2ff}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#00d2ff; background:#00d2ff22; border-color:#00d2ff55">📊</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 6 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">ADC / DAC</h1>
+    <p class="topic-tagline">ADCs digitise reality, DACs reconstruct it. Sample rate and bit depth set the fidelity.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>An <strong>ADC (Analog-to-Digital Converter)</strong> samples a continuous voltage at fixed intervals and outputs an integer code proportional to the input. A <strong>DAC (Digital-to-Analog Converter)</strong> does the inverse, turning integer codes back into voltages.</p>
+      <p>Two specs dominate:</p>
+      <ul>
+        <li><strong>Sample rate (Hz)</strong> — how often you sample. By Nyquist's theorem you must sample at least twice the highest frequency you want to capture.</li>
+        <li><strong>Bit depth (N bits)</strong> — how finely each sample is quantised. An N-bit ADC has 2<sup>N</sup> possible output codes; the resulting <em>quantisation noise</em> is your minimum error floor.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>Most MCU ADCs are <strong>SAR (Successive Approximation Register)</strong> converters — they binary-search the input voltage in N clock cycles for an N-bit conversion. Common resolutions are 10, 12 or 16 bits.</p>
+      <p>Most DACs in MCUs are <strong>R-2R ladder</strong> or <strong>delta-sigma</strong> designs. Audio applications use 16/24-bit delta-sigma DACs with built-in oversampling and reconstruction filtering.</p>
+      <p>Practical pitfalls: input impedance must be low enough to charge the ADC's sample-and-hold capacitor; reference voltage drift directly translates to measurement error; long traces pick up noise that masks low-amplitude signals.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>Drag the analog waveform with your mouse (or use the slider). The blue trace is the original signal; the orange dots are the ADC samples; the red bars show quantisation error.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <label>Sample rate <input type="range" id="adc-fs" min="4" max="64" value="16"> <span id="adc-fs-v">16 sps</span></label>
+          <label>Bit depth <input type="range" id="adc-bits" min="2" max="10" value="4"> <span id="adc-bits-v">4 bits (16 codes)</span></label>
+          <label>Wave freq <input type="range" id="adc-freq" min="1" max="6" step=".1" value="2"> <span id="adc-freq-v">2.0 Hz</span></label>
+          <button class="demo-btn" id="adc-noise" type="button">+ Noise</button>
+        </div>
+        <canvas class="demo-canvas" id="adc-canvas" width="800" height="240"></canvas>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">Codes</div><div class="v" id="adc-codes">16</div></div>
+          <div class="readout"><div class="l">LSB</div><div class="v" id="adc-lsb">0.21 V</div></div>
+          <div class="readout"><div class="l">SNR (theoretical)</div><div class="v" id="adc-snr">25.8 dB</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>Audio recording (44.1 kHz · 16 bit)</strong> — CD quality, the historical reference.</li>
+        <li><strong>Digital oscilloscope</strong> — 1 GS/s · 8 bit ADCs are typical for entry-level scopes.</li>
+        <li><strong>BLDC motor current sensing</strong> — 12 bit ADCs synchronised to PWM for FOC algorithms.</li>
+        <li><strong>BLE pulse oximeter</strong> — 14–16 bit ADCs sample the photodiode at 100–1000 Hz.</li>
+        <li><strong>Audio DAC for class-D amplifier</strong> — delta-sigma 24 bit, oversampled to 384 kHz.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">C — STM32 ADC + DMA</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre><span class="cmt">/* 12-bit single channel, DMA into a buffer */</span>
+<span class="ty">uint16_t</span> samples[<span class="num">256</span>];
+
+hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+hadc1.Init.ScanConvMode = DISABLE;
+hadc1.Init.ContinuousConvMode = ENABLE;
+hadc1.Init.DMAContinuousRequests = ENABLE;
+<span class="fn">HAL_ADC_Init</span>(&amp;hadc1);
+
+<span class="fn">HAL_ADC_Start_DMA</span>(&amp;hadc1, (<span class="ty">uint32_t</span>*)samples, <span class="num">256</span>);
+
+<span class="kw">void</span> <span class="fn">HAL_ADC_ConvCpltCallback</span>(ADC_HandleTypeDef *h) {
+    <span class="ty">uint32_t</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">256</span>; i++) sum += samples[i];
+    <span class="ty">float</span> volts = (sum / <span class="num">256.0f</span>) * <span class="num">3.3f</span> / <span class="num">4095.0f</span>;
+    <span class="fn">processVoltage</span>(volts);
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'adc-dac');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    const cv = document.getElementById('adc-canvas');
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    let fs = 16, bits = 4, freq = 2, noise = 0;
+    function update() {
+      fs = +document.getElementById('adc-fs').value;
+      bits = +document.getElementById('adc-bits').value;
+      freq = parseFloat(document.getElementById('adc-freq').value);
+      const codes = 1 << bits;
+      document.getElementById('adc-fs-v').textContent = fs + ' sps';
+      document.getElementById('adc-bits-v').textContent = bits + ' bits (' + codes + ' codes)';
+      document.getElementById('adc-freq-v').textContent = freq.toFixed(1) + ' Hz';
+      document.getElementById('adc-codes').textContent = codes;
+      document.getElementById('adc-lsb').textContent = (3.3 / codes).toFixed(3) + ' V';
+      document.getElementById('adc-snr').textContent = (6.02 * bits + 1.76).toFixed(1) + ' dB';
+      draw();
+    }
+    document.getElementById('adc-fs').addEventListener('input', update);
+    document.getElementById('adc-bits').addEventListener('input', update);
+    document.getElementById('adc-freq').addEventListener('input', update);
+    document.getElementById('adc-noise').addEventListener('click', () => {
+      noise = noise > 0 ? 0 : 0.06;
+      draw();
+    });
+    function analog(t) {
+      // continuous wave, range 0..1
+      let v = 0.5 + 0.4 * Math.sin(t * 2 * Math.PI * freq) +
+                    0.1 * Math.sin(t * 2 * Math.PI * freq * 3);
+      if (noise) v += (Math.random() - 0.5) * noise;
+      return Math.max(0, Math.min(1, v));
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const x0 = 40, plotW = W - 60, plotH = H - 40, y0 = 20;
+      // axes
+      ctx.strokeStyle = '#30363d';
+      ctx.strokeRect(x0, y0, plotW, plotH);
+      // codes / horizontal grid lines
+      const codes = 1 << bits;
+      ctx.strokeStyle = 'rgba(255,255,255,.04)';
+      for (let i = 0; i <= codes; i++) {
+        const y = y0 + plotH * (1 - i / codes);
+        ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + plotW, y); ctx.stroke();
+      }
+      // continuous wave
+      ctx.strokeStyle = 'var(--topic-accent)';
+      ctx.lineWidth = 2; ctx.beginPath();
+      for (let px = 0; px <= plotW; px++) {
+        const t = px / plotW;
+        const v = analog(t);
+        const y = y0 + plotH * (1 - v);
+        if (px === 0) ctx.moveTo(x0 + px, y); else ctx.lineTo(x0 + px, y);
+      }
+      ctx.stroke();
+      // sampled + quantised
+      const N = fs;
+      for (let i = 0; i < N; i++) {
+        const t = i / (N - 1);
+        const v = analog(t);
+        const code = Math.round(v * (codes - 1));
+        const vq = code / (codes - 1);
+        const x = x0 + plotW * t;
+        const yC = y0 + plotH * (1 - v);
+        const yQ = y0 + plotH * (1 - vq);
+        // error bar
+        ctx.strokeStyle = '#ff7b72'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, yC); ctx.lineTo(x, yQ); ctx.stroke();
+        // quantised dot
+        ctx.fillStyle = '#ffa657';
+        ctx.beginPath(); ctx.arc(x, yQ, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+      // labels
+      ctx.fillStyle = '#8b949e'; ctx.font = '11px monospace';
+      ctx.fillText('3.3 V', 4, y0 + 8);
+      ctx.fillText('0 V',   4, y0 + plotH);
+      ctx.fillText('time →', x0 + plotW - 50, H - 8);
+    }
+    update();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>

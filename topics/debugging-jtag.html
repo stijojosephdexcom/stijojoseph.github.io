@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debugging & JTAG / SWD — Embedded Systems</title>
+  <meta name="description" content="How JTAG, SWD, breakpoints and watchpoints work — with a step-through debugger mock executing real assembly." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#7ee787}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#7ee787; background:#7ee78722; border-color:#7ee78755">🔍</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 5 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Debugging & JTAG / SWD</h1>
+    <p class="topic-tagline">JTAG and SWD give you a microscope into the running CPU — set breakpoints, inspect registers, single-step instructions.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p><strong>JTAG (IEEE 1149.1)</strong> was originally a manufacturing test interface (boundary scan) but became the universal back-door for debugging embedded CPUs. ARM later defined a slimmer 2-pin variant called <strong>SWD (Serial Wire Debug)</strong> with the same capability and far fewer pins.</p>
+      <p>Through the debug port you can <em>halt</em> the CPU at any time, read and write any memory or register, set hardware breakpoints, and single-step instructions.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>On Cortex-M the debug logic lives in three blocks:</p>
+      <ul>
+        <li><strong>DAP (Debug Access Port)</strong> — turns SWD/JTAG transactions into AHB bus transactions.</li>
+        <li><strong>FPB (Flash Patch &amp; Breakpoint)</strong> — up to 6 hardware breakpoints in Flash.</li>
+        <li><strong>DWT (Data Watchpoint &amp; Trace)</strong> — watchpoints, cycle counting, instruction trace.</li>
+      </ul>
+      <p>An IDE's debugger talks to a probe (ST-Link, J-Link, CMSIS-DAP) which in turn drives JTAG/SWD lines and reads/writes the debug registers. Step → set the single-step bit, run, halt, refresh GUI.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>A miniature step-through debugger. Click Step (or hit ⏎) to execute one instruction at a time — the program counter moves, registers update, and the breakpoint at line 4 fires.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <button class="demo-btn primary" id="dbg-step" type="button">⏭ Step (Enter)</button>
+          <button class="demo-btn" id="dbg-run" type="button">▶ Run</button>
+          <button class="demo-btn" id="dbg-reset" type="button">↺ Reset</button>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 220px; gap:1rem">
+          <div style="background:#0d1117; border:1px solid var(--border); border-radius:8px; padding:.6rem 0; font-family:monospace; font-size:.86rem; line-height:1.7" id="dbg-code"></div>
+          <div style="background:#0d1117; border:1px solid var(--border); border-radius:8px; padding:.7rem; font-family:monospace; font-size:.8rem">
+            <div style="color:var(--muted); margin-bottom:.5rem">REGISTERS</div>
+            <div id="dbg-regs"></div>
+            <div style="color:var(--muted); margin-top:.7rem; margin-bottom:.3rem">FLAGS</div>
+            <div id="dbg-flags" style="color:var(--topic-accent)">N=0 Z=0 C=0 V=0</div>
+          </div>
+        </div>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">Status</div><div class="v" id="dbg-status">halted</div></div>
+          <div class="readout"><div class="l">Steps</div><div class="v" id="dbg-steps">0</div></div>
+          <div class="readout"><div class="l">Cycles</div><div class="v" id="dbg-cycles">0</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>ST-Link / J-Link probes</strong> — the USB debug pods every embedded engineer owns.</li>
+        <li><strong>OpenOCD + GDB</strong> — the open-source toolchain used by Eclipse, VSCode and CLion.</li>
+        <li><strong>Segger SystemView</strong> — uses SWO trace pin to visualise RTOS task switches in real time.</li>
+        <li><strong>Boundary scan</strong> — chip manufacturers use JTAG to test PCB connectivity at production.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">GDB — typical embedded session</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre>$ arm-none-eabi-gdb build/firmware.elf
+(gdb) target extended-remote :3333          # OpenOCD
+(gdb) load                                  # flash via SWD
+(gdb) break HardFault_Handler
+Breakpoint 1 at 0x080012a0
+(gdb) break main
+Breakpoint 2 at 0x08001340
+(gdb) monitor reset halt
+(gdb) continue
+Breakpoint 2, main () at src/main.c:42
+(gdb) info reg
+r0  0x20000000  536870912
+r1  0x0         0
+...
+(gdb) step
+(gdb) print *huart1
+$1 = {Instance = 0x40013800, Init = {BaudRate = 115200, ...}}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'debugging-jtag');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    /* Tiny pseudo-Cortex-M instruction stream */
+    const PROG = [
+      { asm: 'MOV  R0, #5',     op: (r) => { r.R0 = 5; }, c: 1 },
+      { asm: 'MOV  R1, #3',     op: (r) => { r.R1 = 3; }, c: 1 },
+      { asm: 'ADD  R2, R0, R1', op: (r) => { r.R2 = r.R0 + r.R1; }, c: 1 },
+      { asm: 'CMP  R2, #8',     op: (r, f) => { f.Z = (r.R2 - 8) === 0 ? 1 : 0; }, c: 1, bp: true },
+      { asm: 'BEQ  done',       op: (r, f, s) => { if (f.Z) s.pc = 6; }, c: (f) => f.Z ? 2 : 1 },
+      { asm: 'MOV  R3, #99',    op: (r) => { r.R3 = 99; }, c: 1 },
+      { asm: 'NOP        ; done', op: () => {}, c: 1 },
+      { asm: 'BX   LR',         op: (r, f, s) => { s.done = true; }, c: 3 },
+    ];
+    const state = { pc: 0, steps: 0, cycles: 0, done: false };
+    const regs = { R0: 0, R1: 0, R2: 0, R3: 0, LR: 0xFFFFFFF9, PC: 0, SP: 0x20002000 };
+    const flags = { N: 0, Z: 0, C: 0, V: 0 };
+    function render() {
+      const code = document.getElementById('dbg-code');
+      code.innerHTML = '';
+      PROG.forEach((ins, i) => {
+        const row = document.createElement('div');
+        row.style.padding = '.05rem 1rem';
+        row.style.background = i === state.pc ? 'rgba(0,210,255,.12)' : 'transparent';
+        row.style.borderLeft = ins.bp ? '3px solid #ff7b72' : '3px solid transparent';
+        row.style.color = i === state.pc ? 'var(--topic-accent)' : '#8b949e';
+        row.innerHTML = `<span style="color:#8b949e">${(0x8000 + i*4).toString(16).padStart(4,'0')}:</span>  ${i === state.pc ? '▶ ' : '  '}${ins.asm}`;
+        code.appendChild(row);
+      });
+      const r = document.getElementById('dbg-regs');
+      r.innerHTML = '';
+      ['R0','R1','R2','R3','LR','SP'].forEach(name => {
+        const val = name === 'SP' ? regs.SP : regs[name];
+        const div = document.createElement('div');
+        div.innerHTML = `<span style="color:#8b949e">${name.padEnd(3)}</span> <span style="color:var(--topic-accent)">0x${val.toString(16).padStart(8,'0')}</span>`;
+        r.appendChild(div);
+      });
+      regs.PC = 0x8000 + state.pc * 4;
+      document.getElementById('dbg-flags').textContent =
+        `N=${flags.N} Z=${flags.Z} C=${flags.C} V=${flags.V}`;
+      document.getElementById('dbg-status').textContent = state.done ? 'done ✓' : 'halted';
+      document.getElementById('dbg-steps').textContent = state.steps;
+      document.getElementById('dbg-cycles').textContent = state.cycles;
+    }
+    function step() {
+      if (state.done || state.pc >= PROG.length) return;
+      const ins = PROG[state.pc];
+      ins.op(regs, flags, state);
+      state.steps++;
+      state.cycles += typeof ins.c === 'function' ? ins.c(flags) : ins.c;
+      if (state.pc === PROG.indexOf(ins)) state.pc++; // unless BEQ moved it
+      render();
+    }
+    document.getElementById('dbg-step').addEventListener('click', step);
+    document.getElementById('dbg-reset').addEventListener('click', () => {
+      state.pc = 0; state.steps = 0; state.cycles = 0; state.done = false;
+      Object.keys(regs).forEach(k => { regs[k] = (k === 'LR' ? 0xFFFFFFF9 : k === 'SP' ? 0x20002000 : 0); });
+      Object.keys(flags).forEach(k => { flags[k] = 0; });
+      render();
+    });
+    document.getElementById('dbg-run').addEventListener('click', () => {
+      // run until breakpoint (.bp) or end
+      while (!state.done && state.pc < PROG.length) {
+        if (state.steps > 0 && PROG[state.pc].bp) break;
+        step();
+      }
+      step(); // execute the breakpoint line itself once
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'dbg-step') {
+        e.preventDefault(); step();
+      }
+    });
+    render();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>

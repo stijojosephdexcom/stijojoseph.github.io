@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microcontroller (MCU) — Embedded Systems</title>
+  <meta name="description" content="Inside a microcontroller: CPU, memory, peripherals and pins. With an interactive pin-out explorer." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#00d2ff}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#00d2ff; background:#00d2ff22; border-color:#00d2ff55">🧠</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 5 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Microcontroller (MCU)</h1>
+    <p class="topic-tagline">A microcontroller fuses a CPU, RAM, Flash and I/O peripherals into a single low-power chip — the brain of nearly every embedded device.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>A <strong>microcontroller</strong> (MCU) is a complete computer on a single integrated circuit. Unlike a PC processor that needs external memory and chipsets, an MCU bundles the processor core, program memory (Flash), working memory (SRAM), a clock generator, and a rich set of peripherals — UART, SPI, I²C, timers, ADC, GPIO — all on one die.</p>
+      <p>The result is a chip that boots in microseconds, costs from a few cents to a few dollars, and can run for years on a coin cell. From your microwave oven to a Mars rover, MCUs are the silent workhorses of the embedded world.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>An MCU has three layers you should picture together:</p>
+      <ol>
+        <li><strong>The core</strong> — typically an ARM Cortex-M, AVR, RISC-V or ESP32 Tensilica CPU. It executes machine instructions, handles interrupts, and talks to memory over an internal bus matrix.</li>
+        <li><strong>On-chip memory</strong> — Flash holds your firmware, SRAM holds runtime data, and a smaller block of EEPROM (or emulated EEPROM in newer parts) keeps non-volatile config.</li>
+        <li><strong>Peripherals & pins</strong> — every peripheral block is wired to a programmable <em>pin mux</em>. By writing to a register you decide whether pin PA9 is a UART TX line, a PWM output, or a digital input.</li>
+      </ol>
+      <p>Software development looks just like normal C/C++, but linker scripts place each section into its physical memory region, and a <em>vector table</em> at address 0 tells the core where to jump on reset and on each interrupt source.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>Click any pin in the chip below — the demo highlights its role and shows a pulsing clock signal travelling along the on-chip bus to the matching peripheral block. (Tap on touch devices.)</p>
+    <div class="demo-stage">
+        <svg class="demo-svg" id="mcu-svg" viewBox="0 0 700 380" style="aspect-ratio: 700/380">
+          <defs>
+            <linearGradient id="chip-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1f2937"/>
+              <stop offset="1" stop-color="#0d1117"/>
+            </linearGradient>
+          </defs>
+          <!-- chip body -->
+          <rect x="200" y="80" width="300" height="220" rx="10" fill="url(#chip-grad)" stroke="#00d2ff" stroke-width="1.5"/>
+          <text x="350" y="180" text-anchor="middle" fill="#00d2ff" font-family="monospace" font-size="20" font-weight="700">CORTEX-M4</text>
+          <text x="350" y="205" text-anchor="middle" fill="#7ee787" font-family="monospace" font-size="11">Flash · SRAM · DMA · Peripherals</text>
+          <circle cx="220" cy="100" r="3" fill="#7ee787"/>
+          <!-- peripheral blocks (right side) for bus animation -->
+          <g id="mcu-blocks">
+            <rect x="540" y="100" width="120" height="34" rx="6" fill="#161b22" stroke="#30363d" data-block="GPIO"/>
+            <text x="600" y="122" text-anchor="middle" fill="#8b949e" font-size="12" font-family="monospace">GPIO</text>
+            <rect x="540" y="148" width="120" height="34" rx="6" fill="#161b22" stroke="#30363d" data-block="UART"/>
+            <text x="600" y="170" text-anchor="middle" fill="#8b949e" font-size="12" font-family="monospace">UART</text>
+            <rect x="540" y="196" width="120" height="34" rx="6" fill="#161b22" stroke="#30363d" data-block="ADC"/>
+            <text x="600" y="218" text-anchor="middle" fill="#8b949e" font-size="12" font-family="monospace">ADC</text>
+            <rect x="540" y="244" width="120" height="34" rx="6" fill="#161b22" stroke="#30363d" data-block="TIMER"/>
+            <text x="600" y="266" text-anchor="middle" fill="#8b949e" font-size="12" font-family="monospace">TIMER</text>
+          </g>
+          <!-- pins: 8 left, 8 right; we'll generate via JS for click handling -->
+          <g id="mcu-pins"></g>
+        </svg>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">Selected pin</div><div class="v" id="mcu-pin-name">—</div></div>
+          <div class="readout"><div class="l">Function</div><div class="v" id="mcu-pin-func">click any pin</div></div>
+          <div class="readout"><div class="l">Routed to</div><div class="v" id="mcu-pin-block">—</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>STM32F4 / STM32L4</strong> (ST) — ARM Cortex-M4 with FPU; ubiquitous in industrial, medical and consumer products.</li>
+        <li><strong>ESP32</strong> (Espressif) — dual-core Xtensa with WiFi + BLE; the workhorse of low-cost IoT.</li>
+        <li><strong>RP2040</strong> (Raspberry Pi) — dual Cortex-M0+ with programmable I/O state machines.</li>
+        <li><strong>ATmega328P</strong> (Microchip) — the venerable 8-bit AVR inside the original Arduino UNO.</li>
+        <li><strong>nRF52</strong> (Nordic) — Cortex-M4 plus a Bluetooth Low Energy radio, the basis of most BLE wearables.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">C — bare-metal blink</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre><span class="pp">#include</span> <span class="str">"stm32f4xx.h"</span>
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>) {
+    <span class="cmt">/* 1. Enable GPIOA clock */</span>
+    RCC-&gt;AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+    <span class="cmt">/* 2. Configure PA5 as push-pull output */</span>
+    GPIOA-&gt;MODER |= (<span class="num">1</span> &lt;&lt; (<span class="num">5</span> * <span class="num">2</span>));
+
+    <span class="kw">while</span> (<span class="num">1</span>) {
+        GPIOA-&gt;ODR ^= (<span class="num">1</span> &lt;&lt; <span class="num">5</span>);
+        <span class="kw">for</span> (<span class="ty">volatile</span> <span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">200000</span>; i++);
+    }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'mcu');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    const svg = document.getElementById('mcu-svg');
+    const pinsGroup = document.getElementById('mcu-pins');
+    const PINS = [
+      // left
+      {n:'PA0',  fn:'GPIO / EXTI0', block:'GPIO'},
+      {n:'PA1',  fn:'ADC1_IN1',     block:'ADC'},
+      {n:'PA2',  fn:'USART2_TX',    block:'UART'},
+      {n:'PA3',  fn:'USART2_RX',    block:'UART'},
+      {n:'VDD',  fn:'+3.3 V supply',block:null},
+      {n:'GND',  fn:'Ground',       block:null},
+      {n:'BOOT0',fn:'Boot mode sel',block:null},
+      {n:'NRST', fn:'Reset (active-low)', block:null},
+      // right
+      {n:'PB0',  fn:'TIM3_CH3 (PWM)', block:'TIMER'},
+      {n:'PB1',  fn:'TIM3_CH4 (PWM)', block:'TIMER'},
+      {n:'PB6',  fn:'I²C1_SCL',       block:'GPIO'},
+      {n:'PB7',  fn:'I²C1_SDA',       block:'GPIO'},
+      {n:'PA8',  fn:'MCO clock-out',  block:'GPIO'},
+      {n:'PA9',  fn:'USART1_TX',      block:'UART'},
+      {n:'PA10', fn:'USART1_RX',      block:'UART'},
+      {n:'PB12', fn:'GPIO output',    block:'GPIO'},
+    ];
+    const PIN_X_LEFT = 200, PIN_X_RIGHT = 500;
+    const PIN_W = 28, PIN_H = 16, PIN_GAP = 12;
+    const Y0 = 100;
+    PINS.forEach((p, i) => {
+      const left = i < 8;
+      const row  = left ? i : i - 8;
+      const x = left ? PIN_X_LEFT - PIN_W : PIN_X_RIGHT;
+      const y = Y0 + row * (PIN_H + PIN_GAP);
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('data-pin', p.n);
+      g.setAttribute('tabindex', '0');
+      g.style.cursor = 'pointer';
+      g.innerHTML = `
+        <rect x="${x}" y="${y}" width="${PIN_W}" height="${PIN_H}" rx="2"
+              fill="#21262d" stroke="#30363d"></rect>
+        <text x="${left ? x - 4 : x + PIN_W + 4}" y="${y + 12}"
+              text-anchor="${left ? 'end' : 'start'}" fill="#8b949e"
+              font-size="10" font-family="monospace">${p.n}</text>`;
+      const onSelect = () => selectPin(p, g);
+      g.addEventListener('click', onSelect);
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(); }});
+      pinsGroup.appendChild(g);
+    });
+    let activeBus = null, busAnim = null;
+    function clearActive() {
+      pinsGroup.querySelectorAll('rect').forEach(r => r.setAttribute('fill', '#21262d'));
+      svg.querySelectorAll('#mcu-blocks rect').forEach(r => r.setAttribute('stroke', '#30363d'));
+      if (activeBus) { activeBus.remove(); activeBus = null; }
+      if (busAnim) { cancelAnimationFrame(busAnim); busAnim = null; }
+    }
+    function selectPin(p, g) {
+      clearActive();
+      g.querySelector('rect').setAttribute('fill', 'var(--topic-accent)');
+      document.getElementById('mcu-pin-name').textContent = p.n;
+      document.getElementById('mcu-pin-func').textContent = p.fn;
+      document.getElementById('mcu-pin-block').textContent = p.block || 'core / power';
+      if (p.block) {
+        const block = svg.querySelector(`[data-block="${p.block}"]`);
+        if (block) {
+          block.setAttribute('stroke', 'var(--topic-accent)');
+          // animated bus pulse
+          const bx = parseFloat(block.getAttribute('x'));
+          const by = parseFloat(block.getAttribute('y')) + 17;
+          const pin = g.querySelector('rect');
+          const px = parseFloat(pin.getAttribute('x')) + (parseFloat(pin.getAttribute('x')) > 400 ? 0 : PIN_W);
+          const py = parseFloat(pin.getAttribute('y')) + 8;
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('r', '5');
+          dot.setAttribute('fill', 'var(--topic-accent)');
+          svg.appendChild(dot);
+          activeBus = dot;
+          if (reduce) {
+            dot.setAttribute('cx', (px + bx) / 2);
+            dot.setAttribute('cy', (py + by) / 2);
+            return;
+          }
+          let t0 = performance.now();
+          const tick = () => {
+            const t = ((performance.now() - t0) / 900) % 1;
+            const u = t < .5 ? t * 2 : (1 - t) * 2;
+            const cx = px + (bx - px) * u;
+            const cy = py + (by - py) * u;
+            dot.setAttribute('cx', cx);
+            dot.setAttribute('cy', cy);
+            busAnim = requestAnimationFrame(tick);
+          };
+          tick();
+        }
+      }
+    }
+    // pre-select first pin so it isn't empty
+    selectPin(PINS[0], pinsGroup.querySelector('[data-pin="PA0"]'));
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>

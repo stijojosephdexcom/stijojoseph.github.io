@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Architecture — Embedded Systems</title>
+  <meta name="description" content="Flash, SRAM, EEPROM, stack, heap and the linker script. With a live memory map showing malloc growing toward the stack." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#d2a8ff}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#d2a8ff; background:#d2a8ff22; border-color:#d2a8ff55">💾</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 6 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Memory Architecture</h1>
+    <p class="topic-tagline">Flash holds your code, SRAM holds your data — and the stack and heap grow toward each other in a 64 KB cage.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>Embedded MCUs typically use a <strong>Harvard-style</strong> bus matrix: separate paths for instruction fetch (Flash) and data access (SRAM). The CPU has a single 32-bit address space, but each region maps to different physical hardware with very different characteristics.</p>
+      <ul>
+        <li><strong>Flash</strong> — non-volatile, holds <code>.text</code> (code) and <code>.rodata</code> (constants). Slow to write (sector-erase first).</li>
+        <li><strong>SRAM</strong> — volatile, holds <code>.data</code> (initialised globals), <code>.bss</code> (zeroed globals), the <strong>stack</strong> and the <strong>heap</strong>.</li>
+        <li><strong>EEPROM / NV storage</strong> — byte-erasable for config and calibration.</li>
+        <li><strong>Peripheral registers</strong> — memory-mapped I/O at fixed addresses.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>The <strong>linker script</strong> tells the linker which physical regions exist and which sections go where. At reset the startup code copies <code>.data</code> from Flash to SRAM, zeroes <code>.bss</code>, sets the stack pointer to the top of SRAM, and jumps to <code>main()</code>.</p>
+      <p>The <strong>stack grows downward</strong> from the top of SRAM as functions are called; the <strong>heap grows upward</strong> from the end of <code>.bss</code> as <code>malloc()</code> requests blocks. If they meet, you have a stack–heap collision and undefined behaviour. On a 32 KB SRAM device, leaving 4 KB of safety margin is common.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>A live memory map of a hypothetical 64 KB SRAM device. Click "malloc 1 KB" to grow the heap upward, "call function" to push a stack frame downward. Watch them race toward each other.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <button class="demo-btn primary" id="mem-malloc" type="button">malloc(1 KB)</button>
+          <button class="demo-btn" id="mem-free" type="button">free()</button>
+          <button class="demo-btn primary" id="mem-call" type="button">call function (+512 B stack)</button>
+          <button class="demo-btn" id="mem-return" type="button">return</button>
+          <button class="demo-btn" id="mem-reset" type="button">↺ Reset</button>
+        </div>
+        <svg class="demo-svg" id="mem-svg" viewBox="0 0 700 320" style="aspect-ratio: 700/320"></svg>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">Heap used</div><div class="v" id="mem-heap">0 B</div></div>
+          <div class="readout"><div class="l">Stack used</div><div class="v" id="mem-stack">0 B</div></div>
+          <div class="readout"><div class="l">Free</div><div class="v" id="mem-free-v">64 KB</div></div>
+          <div class="readout"><div class="l">Status</div><div class="v" id="mem-status">OK</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>STM32F4 vector table at 0x08000000</strong> — first word is initial MSP (stack pointer), second is reset handler.</li>
+        <li><strong>Embedded C bare-metal startup</strong> — copies <code>.data</code> from Flash <code>_etext</code> to <code>_sdata</code>; zeroes <code>.bss</code>.</li>
+        <li><strong>Stack-canary checks</strong> — write a known pattern at the bottom of stack and verify periodically.</li>
+        <li><strong>FreeRTOS heap_4.c</strong> — coalescing best-fit allocator tuned for fragmentation.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">GNU LD — linker script excerpt</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre>MEMORY
+{
+  FLASH (rx) : ORIGIN = <span class="num">0x08000000</span>, LENGTH = <span class="num">256K</span>
+  SRAM  (rwx): ORIGIN = <span class="num">0x20000000</span>, LENGTH = <span class="num">64K</span>
+}
+
+SECTIONS
+{
+  .text : {
+    KEEP(*(.isr_vector))
+    *(.text*)
+    *(.rodata*)
+  } &gt; FLASH
+
+  .data : {
+    _sdata = .;
+    *(.data*)
+    _edata = .;
+  } &gt; SRAM AT&gt; FLASH
+
+  .bss : {
+    _sbss = .;
+    *(.bss*)
+    _ebss = .;
+  } &gt; SRAM
+
+  ._user_heap_stack : {
+    . = ALIGN(<span class="num">8</span>);
+    PROVIDE ( end = . );
+    . = . + <span class="num">0x4000</span>; <span class="cmt">/* heap */</span>
+    . = . + <span class="num">0x2000</span>; <span class="cmt">/* stack */</span>
+  } &gt; SRAM
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'memory');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    const TOTAL = 64 * 1024;
+    const BSS   = 4 * 1024;
+    let heap = 0, stack = 0;
+    const svg = document.getElementById('mem-svg');
+    const W = 700, H = 320;
+    const BAR_X = 200, BAR_W = 300, BAR_Y = 30, BAR_H = 260;
+
+    function render() {
+      svg.innerHTML = '';
+      // axis labels
+      const labels = [
+        { y: BAR_Y, text: '0xFFFF — top of SRAM (stack base)' },
+        { y: BAR_Y + BAR_H, text: '0x0000 — start of SRAM' },
+      ];
+      labels.forEach(l => {
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', BAR_X + BAR_W + 12);
+        t.setAttribute('y', l.y + 4);
+        t.setAttribute('fill', '#8b949e'); t.setAttribute('font-size', '11');
+        t.setAttribute('font-family', 'monospace');
+        t.textContent = l.text;
+        svg.appendChild(t);
+      });
+      // outer frame
+      const frame = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      frame.setAttribute('x', BAR_X); frame.setAttribute('y', BAR_Y);
+      frame.setAttribute('width', BAR_W); frame.setAttribute('height', BAR_H);
+      frame.setAttribute('fill', '#161b22'); frame.setAttribute('stroke', '#30363d');
+      svg.appendChild(frame);
+      // sections
+      const seg = (top, bytes, fill, label) => {
+        const h = (bytes / TOTAL) * BAR_H;
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('x', BAR_X + 1); r.setAttribute('y', top);
+        r.setAttribute('width', BAR_W - 2); r.setAttribute('height', Math.max(0, h));
+        r.setAttribute('fill', fill);
+        svg.appendChild(r);
+        if (h > 14) {
+          const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          t.setAttribute('x', BAR_X + BAR_W / 2);
+          t.setAttribute('y', top + h / 2 + 4);
+          t.setAttribute('fill', '#0d1117'); t.setAttribute('font-size', '12');
+          t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', 'monospace');
+          t.setAttribute('font-weight', '700');
+          t.textContent = label;
+          svg.appendChild(t);
+        }
+      };
+      // Bottom up: .text/.bss reserved, then heap (grows upward), free, then stack (grows downward) at top
+      const bssTop = BAR_Y + BAR_H - (BSS / TOTAL) * BAR_H;
+      seg(bssTop, BSS, '#7ee787', '.bss / .data');
+      const heapH = (heap / TOTAL) * BAR_H;
+      seg(bssTop - heapH, heap, '#ffa657', heap ? 'heap →' : '');
+      const stackH = (stack / TOTAL) * BAR_H;
+      seg(BAR_Y, stack, '#d2a8ff', stack ? '↓ stack' : '');
+      // arrows
+      // Title side label
+      const title = (x, y, text, color) => {
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', x); t.setAttribute('y', y);
+        t.setAttribute('fill', color); t.setAttribute('font-size', '12');
+        t.setAttribute('font-family', 'monospace');
+        t.textContent = text;
+        svg.appendChild(t);
+      };
+      title(20, 50, '↓ Stack grows down', '#d2a8ff');
+      title(20, BAR_Y + BAR_H - 8, '↑ Heap grows up', '#ffa657');
+      // collision warning
+      const used = stack + heap + BSS;
+      const collide = used > TOTAL;
+      document.getElementById('mem-status').textContent = collide ? '💥 COLLISION!' : 'OK';
+      document.getElementById('mem-status').style.color = collide ? '#ff7b72' : 'var(--topic-accent)';
+      document.getElementById('mem-heap').textContent = (heap/1024).toFixed(1) + ' KB';
+      document.getElementById('mem-stack').textContent = (stack/1024).toFixed(1) + ' KB';
+      document.getElementById('mem-free-v').textContent = ((TOTAL - used)/1024).toFixed(1) + ' KB';
+    }
+    document.getElementById('mem-malloc').addEventListener('click', () => { heap = Math.min(TOTAL, heap + 1024); render(); });
+    document.getElementById('mem-free').addEventListener('click', () => { heap = Math.max(0, heap - 1024); render(); });
+    document.getElementById('mem-call').addEventListener('click', () => { stack = Math.min(TOTAL, stack + 512); render(); });
+    document.getElementById('mem-return').addEventListener('click', () => { stack = Math.max(0, stack - 512); render(); });
+    document.getElementById('mem-reset').addEventListener('click', () => { heap = 0; stack = 0; render(); });
+    render();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>
