@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watchdog Timer (WDT) — Embedded Systems</title>
+  <meta name="description" content="How a watchdog rescues a hung MCU — with an interactive "pet the dog" button you can fail at, and watch the system reset." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#d2a8ff}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#d2a8ff; background:#d2a8ff22; border-color:#d2a8ff55">🛡️</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 4 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Watchdog Timer (WDT)</h1>
+    <p class="topic-tagline">A watchdog is a countdown bomb. Pet it in time, you live; miss a deadline, the MCU resets — guaranteed.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>A <strong>watchdog timer</strong> is an independent counter inside the MCU that decrements (or counts up to a reload value) on its own clock. If your firmware doesn't periodically <strong>reload</strong> ("kick" or "pet") the watchdog within a configured window, the watchdog asserts a system reset — the MCU reboots and starts over.</p>
+      <p>That single-purpose bit of silicon is what stops your toaster from staying on for hours when its firmware crashes.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>On STM32 there are two watchdogs:</p>
+      <ul>
+        <li><strong>IWDG (Independent Watchdog)</strong> — clocked by the LSI (~32 kHz), runs even if the main PLL stops. Once started it cannot be disabled. Timeout from a few ms to several seconds.</li>
+        <li><strong>WWDG (Window Watchdog)</strong> — also detects "petted too early", catching runaway loops that would otherwise look healthy.</li>
+      </ul>
+      <p>Best practice: kick the watchdog in <em>one</em> well-known place in your main loop. Don't sprinkle <code>WDT_kick()</code> all over the codebase — that defeats the purpose, because a stuck branch could still kick.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>You are the firmware. Click "Pet 🐕" before the bar empties — keep the dog happy. Stop clicking and the watchdog will trigger a "reset" of this widget after the timeout.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <label>Timeout <input type="range" id="wdt-to" min="1500" max="6000" step="500" value="3000"> <span id="wdt-to-v">3.0 s</span></label>
+          <button class="demo-btn primary" id="wdt-pet" type="button">Pet 🐕</button>
+          <button class="demo-btn" id="wdt-reset" type="button">↺ Restart sim</button>
+        </div>
+        <div style="background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:1.2rem; text-align:center">
+          <div id="wdt-bar" style="width:100%; height:18px; background:#30363d; border-radius:999px; overflow:hidden">
+            <div id="wdt-fill" style="height:100%; width:100%; background:linear-gradient(90deg,#7ee787,#ffa657,#ff7b72); transition:width .1s linear"></div>
+          </div>
+          <div style="margin-top:1rem; font-size:1.4rem; font-weight:700" id="wdt-status">🐕 happy &amp; alive</div>
+          <div id="wdt-boot" style="margin-top:.6rem; min-height:1.4em; font-family:monospace; font-size:.85rem; color:#7ee787; text-align:left; max-width:520px; margin-left:auto; margin-right:auto"></div>
+        </div>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">Survived for</div><div class="v" id="wdt-t">0.0 s</div></div>
+          <div class="readout"><div class="l">Pets given</div><div class="v" id="wdt-pets">0</div></div>
+          <div class="readout"><div class="l">Resets</div><div class="v" id="wdt-resets">0</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>Industrial controllers</strong> (PLCs) — required for IEC 61508 SIL-2 compliance.</li>
+        <li><strong>Automotive ECUs</strong> — paired with an external safety chip that watches the MCU's heartbeat.</li>
+        <li><strong>Set-top boxes</strong> — quietly reboot themselves overnight if a network stack hangs.</li>
+        <li><strong>Pacemakers and defibrillators</strong> — multiple redundant watchdogs are a regulatory requirement.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">C — STM32 IWDG init</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre><span class="cmt">/* IWDG: LSI (~32 kHz) / 64 prescaler = 500 Hz tick */</span>
+<span class="cmt">/* Reload 2000 -&gt; 4 second timeout */</span>
+hiwdg.Instance       = IWDG;
+hiwdg.Init.Prescaler = IWDG_PRESCALER_64;
+hiwdg.Init.Reload    = <span class="num">2000</span>;
+<span class="fn">HAL_IWDG_Init</span>(&amp;hiwdg);
+
+<span class="kw">void</span> <span class="fn">main_loop</span>(<span class="kw">void</span>) {
+    <span class="kw">while</span> (<span class="num">1</span>) {
+        <span class="fn">doWork</span>();
+        <span class="fn">HAL_IWDG_Refresh</span>(&amp;hiwdg); <span class="cmt">/* pet the dog */</span>
+    }
+}
+
+<span class="cmt">/* Diagnose reset cause on boot */</span>
+<span class="kw">if</span> (<span class="fn">__HAL_RCC_GET_FLAG</span>(RCC_FLAG_IWDGRST)) {
+    <span class="fn">log</span>(<span class="str">"watchdog reset"</span>);
+    <span class="fn">__HAL_RCC_CLEAR_RESET_FLAGS</span>();
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'watchdog');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    let timeout = 3000, remaining = timeout, pets = 0, resets = 0, alive = true, raf;
+    let surviveSince = performance.now();
+    const bar = document.getElementById('wdt-fill');
+    const stat = document.getElementById('wdt-status');
+    const bootEl = document.getElementById('wdt-boot');
+    document.getElementById('wdt-to').addEventListener('input', (e) => {
+      timeout = +e.target.value;
+      document.getElementById('wdt-to-v').textContent = (timeout/1000).toFixed(1) + ' s';
+      remaining = timeout;
+    });
+    document.getElementById('wdt-pet').addEventListener('click', () => {
+      if (!alive) return;
+      remaining = timeout; pets++;
+      document.getElementById('wdt-pets').textContent = pets;
+      stat.textContent = '🐕 happy & alive';
+    });
+    document.getElementById('wdt-reset').addEventListener('click', () => {
+      remaining = timeout; alive = true; pets = 0; resets = 0; surviveSince = performance.now();
+      bootEl.textContent = '';
+      document.getElementById('wdt-pets').textContent = 0;
+      document.getElementById('wdt-resets').textContent = 0;
+      stat.textContent = '🐕 happy & alive';
+    });
+    function bootSeq() {
+      const lines = ['[BOOT] WDT reset detected', '[BOOT] HSI on ✓', '[BOOT] PLL locked ✓', '[BOOT] SRAM init ✓', '[BOOT] running main()'];
+      bootEl.textContent = '';
+      let i = 0;
+      const t = setInterval(() => {
+        bootEl.textContent += (i ? '\n' : '') + lines[i++];
+        if (i === lines.length) {
+          clearInterval(t);
+          alive = true; remaining = timeout;
+          surviveSince = performance.now();
+          stat.textContent = '🐕 happy & alive';
+        }
+      }, 220);
+    }
+    let last = performance.now();
+    function loop() {
+      const now = performance.now();
+      const dt = Math.min(50, now - last);
+      last = now;
+      if (alive) {
+        remaining = Math.max(0, remaining - dt);
+        bar.style.width = (100 * remaining / timeout).toFixed(1) + '%';
+        document.getElementById('wdt-t').textContent = ((now - surviveSince) / 1000).toFixed(1) + ' s';
+        if (remaining <= 0) {
+          alive = false; resets++;
+          document.getElementById('wdt-resets').textContent = resets;
+          stat.textContent = '💥 WDT RESET — rebooting';
+          setTimeout(bootSeq, 500);
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    }
+    if (reduce) { bar.style.width = '60%'; }
+    else loop();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>

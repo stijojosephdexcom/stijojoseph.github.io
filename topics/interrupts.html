@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interrupts & ISR — Embedded Systems</title>
+  <meta name="description" content="How interrupts hijack the CPU to react instantly to events. Includes a live IRQ simulator." />
+  <link rel="stylesheet" href="../assets/css/site.css" />
+  <style>:root{--topic-accent:#ff7b72}</style>
+</head>
+<body class="topic-page">
+
+<div id="site-nav"></div>
+
+<header class="topic-hero">
+  <div class="container topic-hero-inner">
+    <a href="../index.html#concepts" class="topic-back">← Back to all concepts</a>
+    <div class="topic-hero-meta">
+      <div class="topic-icon" style="color:#ff7b72; background:#ff7b7222; border-color:#ff7b7255">⚡</div>
+      <div>
+        <div class="topic-eyebrow">Subtopic</div>
+        <span class="topic-read">⏱ 5 min read</span>
+      </div>
+    </div>
+    <h1 class="topic-title">Interrupts & ISR</h1>
+    <p class="topic-tagline">Interrupts let hardware events steal the CPU instantly — milliseconds matter.</p>
+  </div>
+</header>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">01.</span> What it is</h2>
+    <p>An <strong>interrupt</strong> is an asynchronous signal that forces the CPU to pause whatever it's doing, save its state, and jump to an <strong>Interrupt Service Routine</strong> (ISR). When the ISR returns, execution continues exactly where it left off.</p>
+      <p>Interrupts are how an MCU reacts to the real world: a button press, a UART byte arriving, a DMA transfer finishing, a timer overflow.</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">02.</span> How it works</h2>
+    <p>On ARM Cortex-M the <strong>Nested Vectored Interrupt Controller (NVIC)</strong> arbitrates up to 240 interrupt sources with configurable priority. When a peripheral asserts its interrupt line:</p>
+      <ol>
+        <li>The NVIC compares the new IRQ's priority against the currently executing one.</li>
+        <li>If it's higher, the core <em>tail-chains</em> — pushes <code>R0–R3, R12, LR, PC, xPSR</code> onto the stack in 12 cycles.</li>
+        <li>It loads the ISR address from the <strong>vector table</strong> at the start of Flash.</li>
+        <li>The ISR executes; on return the stack is unwound and normal flow resumes.</li>
+      </ol>
+      <p><strong>Best practice:</strong> keep ISRs short. Set a <code>volatile</code> flag and let the main loop or an RTOS task do the heavy lifting (deferred processing).</p>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">03.</span> Interactive demo</h2>
+    <p>A "main loop" ball bounces along the timeline. Click "Trigger IRQ" to fire an interrupt — watch the main flow freeze, the ISR pulse fire, the stack frame push, and execution resume.</p>
+    <div class="demo-stage">
+        <div class="demo-controls">
+          <button class="demo-btn primary" id="irq-trigger" type="button">⚡ Trigger IRQ</button>
+          <label>ISR length <input type="range" id="irq-len" min="20" max="200" value="80"> <span id="irq-len-v">80</span> ms</label>
+          <button class="demo-btn" id="irq-reset" type="button">↺ Reset</button>
+        </div>
+        <canvas class="demo-canvas" id="irq-canvas" width="800" height="240"></canvas>
+        <div class="demo-readout">
+          <div class="readout"><div class="l">State</div><div class="v" id="irq-state">main loop</div></div>
+          <div class="readout"><div class="l">IRQs handled</div><div class="v" id="irq-count">0</div></div>
+          <div class="readout"><div class="l">Stack depth</div><div class="v" id="irq-stack">0</div></div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">04.</span> Real-world examples</h2>
+    <ul>
+        <li><strong>Button debouncing</strong> — EXTI fires on edge, ISR sets flag, main loop confirms after 20 ms.</li>
+        <li><strong>UART RX</strong> — interrupt per byte, store in ring buffer, signal a parser task.</li>
+        <li><strong>Motor encoder</strong> — quadrature interrupts on both A and B lines update a position counter.</li>
+        <li><strong>Touch screen</strong> — controller asserts INT line when finger detected; ISR reads coordinates over I²C.</li>
+      </ul>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">05.</span> Code snippet</h2>
+    <div class="code-block" style="max-width:760px">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">C — STM32 EXTI handler</span>
+        <button class="copy-btn" type="button" onclick="window.copyCode &amp;&amp; window.copyCode(this)">⎘ Copy</button>
+      </div>
+<pre><span class="ty">volatile uint8_t</span> g_buttonFlag = <span class="num">0</span>;
+
+<span class="cmt">/* Configure PA0 as EXTI rising-edge interrupt */</span>
+<span class="kw">void</span> <span class="fn">EXTI0_IRQHandler</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span> (<span class="fn">__HAL_GPIO_EXTI_GET_IT</span>(GPIO_PIN_0)) {
+        g_buttonFlag = <span class="num">1</span>;          <span class="cmt">/* defer work */</span>
+        <span class="fn">__HAL_GPIO_EXTI_CLEAR_IT</span>(GPIO_PIN_0);
+    }
+}
+
+<span class="kw">void</span> <span class="fn">main_loop</span>(<span class="kw">void</span>) {
+    <span class="kw">while</span> (<span class="num">1</span>) {
+        <span class="kw">if</span> (g_buttonFlag) {
+            g_buttonFlag = <span class="num">0</span>;
+            <span class="fn">handleButtonPress</span>();
+        }
+        <span class="fn">otherWork</span>();
+    }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="topic-section">
+  <div class="container">
+    <h2><span class="num">06.</span> Related topics</h2>
+    <div class="related-grid" id="related"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="../assets/js/site.js" defer></script>
+<script defer>
+window.copyCode = function(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderRelatedTopics) window.renderRelatedTopics('#related', 'interrupts');
+  const reduce = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ─── Per-topic interactive demo ─── */
+  try {
+    const cv = document.getElementById('irq-canvas');
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    let mainPos = 60, dir = 1;
+    let inISR = false, isrTimeLeft = 0, isrLen = 80;
+    let count = 0, stack = 0;
+    let raf, last = performance.now();
+    document.getElementById('irq-len').addEventListener('input', (e) => {
+      isrLen = +e.target.value;
+      document.getElementById('irq-len-v').textContent = isrLen;
+    });
+    document.getElementById('irq-trigger').addEventListener('click', () => {
+      if (inISR) return;
+      inISR = true; stack = 8;
+      isrTimeLeft = isrLen;
+      count++;
+      document.getElementById('irq-count').textContent = count;
+    });
+    document.getElementById('irq-reset').addEventListener('click', () => {
+      mainPos = 60; dir = 1; inISR = false; isrTimeLeft = 0;
+      count = 0; stack = 0;
+      document.getElementById('irq-count').textContent = '0';
+    });
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      // main loop track
+      ctx.strokeStyle = '#30363d';
+      ctx.beginPath(); ctx.moveTo(40, 60); ctx.lineTo(W-40, 60); ctx.stroke();
+      ctx.fillStyle = '#8b949e'; ctx.font='11px monospace';
+      ctx.fillText('main { while(1) doWork(); }', 40, 30);
+      // ball
+      ctx.beginPath();
+      ctx.arc(mainPos, 60, 11, 0, Math.PI*2);
+      ctx.fillStyle = inISR ? '#444' : '#7ee787';
+      ctx.fill();
+      ctx.strokeStyle = inISR ? '#666' : '#7ee787';
+      ctx.lineWidth = 2; ctx.stroke();
+      if (inISR) {
+        ctx.fillStyle = '#666'; ctx.font = '20px monospace';
+        ctx.fillText('⏸', mainPos - 6, 67);
+      }
+      // ISR track
+      ctx.strokeStyle = '#30363d';
+      ctx.beginPath(); ctx.moveTo(40, 150); ctx.lineTo(W-40, 150); ctx.stroke();
+      ctx.fillStyle = '#8b949e';
+      ctx.fillText('ISR { handle(); clear_flag(); }', 40, 120);
+      if (inISR) {
+        // pulse
+        const isrX = 40 + (W-80) * (1 - isrTimeLeft / isrLen);
+        ctx.beginPath();
+        ctx.arc(isrX, 150, 11, 0, Math.PI*2);
+        ctx.fillStyle = '#ff7b72'; ctx.fill();
+        ctx.strokeStyle = '#ff7b72'; ctx.lineWidth = 2; ctx.stroke();
+        // jump arrow main → isr
+        ctx.strokeStyle = '#ff7b72'; ctx.lineWidth = 1.5;
+        ctx.setLineDash([4,3]);
+        ctx.beginPath();
+        ctx.moveTo(mainPos, 71);
+        ctx.lineTo(mainPos, 100);
+        ctx.lineTo(isrX, 100);
+        ctx.lineTo(isrX, 139);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      // stack frame visualization
+      ctx.strokeStyle = '#30363d';
+      ctx.strokeRect(W-130, 175, 110, 55);
+      ctx.fillStyle = '#8b949e';
+      ctx.fillText('stack', W-128, 188);
+      const labels = ['xPSR','PC','LR','R12','R3','R2','R1','R0'];
+      for (let i = 0; i < stack; i++) {
+        ctx.fillStyle = '#ff7b72';
+        ctx.fillRect(W-125, 222 - i*5, 100, 4);
+        ctx.fillStyle = '#0d1117';
+        ctx.font='9px monospace';
+        ctx.fillText(labels[i] || '', W-122, 226 - i*5);
+        ctx.font='11px monospace';
+      }
+      document.getElementById('irq-stack').textContent = stack + ' regs';
+    }
+    function loop() {
+      const now = performance.now();
+      const dt = Math.min(40, now - last);
+      last = now;
+      if (inISR) {
+        isrTimeLeft -= dt;
+        if (isrTimeLeft <= 0) { inISR = false; stack = 0; }
+        document.getElementById('irq-state').textContent = 'in ISR';
+      } else {
+        mainPos += dir * dt * 0.15;
+        if (mainPos > W - 60) { mainPos = W - 60; dir = -1; }
+        if (mainPos < 60)     { mainPos = 60; dir = 1; }
+        document.getElementById('irq-state').textContent = 'main loop';
+      }
+      draw();
+      raf = requestAnimationFrame(loop);
+    }
+    if (reduce) draw();
+    else loop();
+  } catch (err) { console.error('Demo error:', err); }
+});
+</script>
+</body>
+</html>
