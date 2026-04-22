@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embedded Systems — Interactive Guide</title>
+  <style>
+    /* ─── Reset & Custom Properties ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d1117;
+      --bg2:        #161b22;
+      --bg3:        #21262d;
+      --border:     #30363d;
+      --text:       #e6edf3;
+      --muted:      #8b949e;
+      --accent:     #00d2ff;
+      --accent2:    #7ee787;
+      --accent3:    #ff7b72;
+      --accent4:    #d2a8ff;
+      --accent5:    #ffa657;
+      --card-glow:  0 0 20px rgba(0,210,255,.15), 0 4px 24px rgba(0,0,0,.5);
+      --transition: .35s cubic-bezier(.4,0,.2,1);
+      --radius:     12px;
+    }
+    [data-theme="light"] {
+      --bg:   #f0f6fc;
+      --bg2:  #ffffff;
+      --bg3:  #e8f0f8;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted:#57606a;
+      --card-glow: 0 0 20px rgba(0,210,255,.08), 0 4px 24px rgba(0,0,0,.12);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ─── Scrollbar ──────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* ─── Utility ────────────────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .75rem; font-weight: 600; letter-spacing: .05em;
+      padding: .25rem .65rem; border-radius: 999px;
+      background: rgba(0,210,255,.12); color: var(--accent);
+      border: 1px solid rgba(0,210,255,.25); text-transform: uppercase;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700; line-height: 1.2;
+      background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-sub { color: var(--muted); font-size: 1.05rem; margin-top: .6rem; }
+
+    /* ─── NAV ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(13,17,23,.7);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    [data-theme="light"] nav { background: rgba(240,246,252,.8); }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: .6rem;
+      font-size: 1.15rem; font-weight: 700; color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex; gap: 1.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: .9rem; color: var(--muted); text-decoration: none;
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--accent); }
+    #theme-btn {
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); padding: .4rem .75rem; border-radius: 8px;
+      cursor: pointer; font-size: .85rem; transition: all var(--transition);
+      display: flex; align-items: center; gap: .4rem;
+    }
+    #theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid; place-items: center;
+      position: relative; overflow: hidden;
+      padding-top: 60px;
+    }
+    #circuit-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: .35;
+    }
+    .hero-content {
+      position: relative; z-index: 2; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
+      padding: 4rem 1.5rem;
+    }
+    .hero-title {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -.03em;
+      background: linear-gradient(135deg, #00d2ff 0%, #7ee787 50%, #d2a8ff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--muted);
+      max-width: 640px; line-height: 1.65;
+    }
+    .hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn-primary, .btn-outline {
+      padding: .7rem 1.6rem; border-radius: 10px; font-size: .95rem;
+      font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: all var(--transition); border: 2px solid transparent;
+      display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00d2ff, #7ee787);
+      color: #0d1117;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,210,255,.35); }
+    .btn-outline {
+      background: transparent; border-color: var(--border); color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+      margin-top: .5rem;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem; font-weight: 700; color: var(--accent);
+      display: block;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ─── SECTIONS shared ────────────────────────────────────── */
+    section { padding: 6rem 0; }
+    section:nth-child(odd) { background: var(--bg); }
+    section:nth-child(even) { background: var(--bg2); }
+    .section-head { text-align: center; margin-bottom: 3.5rem; }
+
+    /* ─── CONCEPTS GRID ──────────────────────────────────────── */
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .concept-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    [data-theme="light"] .concept-card { background: var(--bg3); }
+    .concept-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--card-accent,#00d2ff) 0%, transparent 60%);
+      opacity: 0; transition: opacity var(--transition);
+      pointer-events: none;
+    }
+    .concept-card:hover::before { opacity: .06; }
+    .concept-card:hover {
+      border-color: var(--card-accent, var(--accent));
+      transform: translateY(-4px);
+      box-shadow: var(--card-glow);
+    }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 1.5rem;
+      margin-bottom: 1rem;
+      background: rgba(0,210,255,.1);
+    }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
+    .card-text { color: var(--muted); font-size: .9rem; line-height: 1.65; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
+    .tag {
+      font-size: .72rem; padding: .2rem .6rem; border-radius: 999px;
+      background: var(--bg3); color: var(--muted); border: 1px solid var(--border);
+    }
+
+    /* ─── INTERACTIVE DEMO / TABS ────────────────────────────── */
+    #demo { background: var(--bg) !important; }
+    .tabs-wrapper { position: relative; }
+    .tab-list {
+      display: flex; gap: .3rem; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      padding: .6rem 1.1rem; border: none; background: transparent;
+      color: var(--muted); font-size: .9rem; font-weight: 500; cursor: pointer;
+      border-radius: 8px 8px 0 0; transition: all var(--transition);
+      position: relative;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
+    }
+    .tab-btn:hover { color: var(--accent); background: rgba(0,210,255,.05); }
+    .tab-panel { display: none; animation: fadeUp .35s ease; }
+    .tab-panel.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    @media (max-width: 768px) { .demo-grid { grid-template-columns: 1fr; } }
+
+    .code-block {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .65rem 1rem; border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+    }
+    .code-dots { display: flex; gap: .4rem; }
+    .code-dots span {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .code-dots span:nth-child(1) { background: #ff5f56; }
+    .code-dots span:nth-child(2) { background: #ffbd2e; }
+    .code-dots span:nth-child(3) { background: #27c93f; }
+    .code-lang { font-size: .75rem; color: var(--muted); font-family: monospace; }
+    .copy-btn {
+      font-size: .75rem; color: var(--muted); background: none; border: none;
+      cursor: pointer; padding: .2rem .5rem; border-radius: 5px;
+      transition: all var(--transition);
+    }
+    .copy-btn:hover { color: var(--accent); background: rgba(0,210,255,.1); }
+    pre {
+      padding: 1.2rem; overflow-x: auto; font-size: .82rem;
+      line-height: 1.7; font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+    }
+    .kw  { color: #ff7b72; }
+    .fn  { color: #d2a8ff; }
+    .str { color: #a5d6ff; }
+    .cmt { color: #8b949e; font-style: italic; }
+    .num { color: #79c0ff; }
+    .pp  { color: #ffa657; }
+    .ty  { color: #7ee787; }
+
+    .demo-info {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .demo-info h3 { font-size: 1.15rem; margin-bottom: .75rem; color: var(--accent); }
+    .demo-info p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: .9rem; }
+    .info-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .info-list li {
+      display: flex; gap: .6rem; align-items: flex-start;
+      font-size: .88rem; color: var(--muted);
+    }
+    .info-list li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: .1rem; }
+
+    /* ─── ARCHITECTURE DIAGRAM ───────────────────────────────── */
+    .arch-diagram {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      overflow-x: auto;
+    }
+    .arch-svg { width: 100%; max-width: 900px; display: block; margin: 0 auto; }
+
+    /* ─── PERIPHERAL CARDS ───────────────────────────────────── */
+    .periph-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+    .periph-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.4rem;
+      transition: all var(--transition);
+    }
+    [data-theme="light"] .periph-card { background: var(--bg3); }
+    .periph-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .periph-head { display: flex; align-items: center; gap: .8rem; margin-bottom: .9rem; }
+    .periph-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      display: grid; place-items: center; font-size: 1.2rem;
+      background: rgba(0,210,255,.1); flex-shrink: 0;
+    }
+    .periph-name { font-weight: 700; font-size: 1rem; }
+    .periph-full { font-size: .75rem; color: var(--muted); }
+    .periph-desc { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+    .periph-speed {
+      margin-top: .75rem; font-size: .78rem; color: var(--accent2);
+      display: flex; align-items: center; gap: .3rem;
+    }
+
+    /* ─── TIMELINE ───────────────────────────────────────────── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: .4rem; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent4));
+      border-radius: 2px;
+    }
+    .tl-item {
+      position: relative; padding: 0 0 2.5rem 1.5rem;
+      opacity: 0; transform: translateX(-20px);
+      transition: all .6s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateX(0); }
+    .tl-dot {
+      position: absolute; left: -1.75rem; top: .25rem;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--bg);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .tl-year {
+      font-size: .78rem; color: var(--accent); font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: .3rem;
+    }
+    .tl-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .tl-desc { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ─── QUIZ ───────────────────────────────────────────────── */
+    .quiz-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      max-width: 720px; margin: 0 auto;
+    }
+    [data-theme="light"] .quiz-card { background: var(--bg3); }
+    .quiz-q {
+      font-size: 1.1rem; font-weight: 600; margin-bottom: 1.4rem;
+      line-height: 1.55;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: .7rem; }
+    .quiz-opt {
+      padding: .85rem 1.2rem; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--bg3);
+      cursor: pointer; font-size: .9rem; transition: all var(--transition);
+      text-align: left; color: var(--text);
+    }
+    .quiz-opt:hover { border-color: var(--accent); background: rgba(0,210,255,.05); }
+    .quiz-opt.correct { border-color: var(--accent2); background: rgba(126,231,135,.1); color: var(--accent2); }
+    .quiz-opt.wrong   { border-color: var(--accent3); background: rgba(255,123,114,.1); color: var(--accent3); }
+    .quiz-opt.disabled { pointer-events: none; }
+    .quiz-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 1.5rem; flex-wrap: wrap; gap: .8rem;
+    }
+    .quiz-progress { font-size: .85rem; color: var(--muted); }
+    .quiz-score { font-size: .9rem; font-weight: 600; color: var(--accent2); }
+    #quiz-result {
+      text-align: center; padding: 1.5rem 0; display: none;
+    }
+    #quiz-result .result-emoji { font-size: 3rem; margin-bottom: .5rem; }
+    #quiz-result p { color: var(--muted); margin-top: .4rem; }
+
+    /* ─── PROGRESS BARS ──────────────────────────────────────── */
+    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem 2rem; }
+    @media (max-width: 600px) { .skill-grid { grid-template-columns: 1fr; } }
+    .skill-item { }
+    .skill-row { display: flex; justify-content: space-between; margin-bottom: .35rem; }
+    .skill-name { font-size: .9rem; font-weight: 500; }
+    .skill-pct  { font-size: .85rem; color: var(--muted); }
+    .skill-bar {
+      height: 8px; background: var(--bg3); border-radius: 999px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .skill-fill {
+      height: 100%; border-radius: 999px; width: 0;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    /* ─── GLOSSARY ───────────────────────────────────────────── */
+    .glossary-search {
+      width: 100%; padding: .75rem 1.1rem; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--bg2);
+      color: var(--text); font-size: .95rem; margin-bottom: 1.5rem;
+      outline: none; transition: border-color var(--transition);
+    }
+    .glossary-search:focus { border-color: var(--accent); }
+    .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .gloss-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem;
+      transition: all var(--transition);
+    }
+    [data-theme="light"] .gloss-card { background: var(--bg3); }
+    .gloss-card:hover { border-color: var(--accent4); }
+    .gloss-term { font-weight: 700; font-size: 1rem; color: var(--accent4); margin-bottom: .4rem; }
+    .gloss-def  { font-size: .855rem; color: var(--muted); line-height: 1.65; }
+    .gloss-card.hidden { display: none; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 3rem 0 2rem; text-align: center;
+    }
+    .footer-logo {
+      font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: .6rem;
+    }
+    .footer-sub { font-size: .85rem; color: var(--muted); margin-bottom: 2rem; }
+    .footer-links {
+      display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: .875rem; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { font-size: .78rem; color: var(--muted); }
+
+    /* ─── Scroll-in animation ────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE NAV ─────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero-stats { gap: 1.2rem; }
+    }
+
+    /* ─── Tooltip ────────────────────────────────────────────── */
+    [data-tip] { position: relative; cursor: help; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+      background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+      font-size: .78rem; white-space: nowrap; padding: .35rem .7rem;
+      border-radius: 6px; pointer-events: none; opacity: 0;
+      transition: opacity .2s; z-index: 10;
+    }
+    [data-tip]:hover::after { opacity: 1; }
+
+    /* ─── pulse ring on hero ─────────────────────────────────── */
+    .pulse-ring {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,210,255,.07) 0%, transparent 70%);
+      animation: pulse 3.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: .7; }
+      50%      { transform: scale(1.25); opacity: .2; }
+    }
+
+    /* ─── Chip animation ─────────────────────────────────────── */
+    #chip-demo {
+      position: relative; width: 100%; max-width: 480px; margin: 0 auto;
+      aspect-ratio: 1 / .8; user-select: none;
+    }
+    .chip-svg { width: 100%; height: 100%; }
+    .chip-pin-group { transition: opacity .3s; cursor: pointer; }
+    .chip-pin-group:hover { opacity: .8; }
+    .pin-label { font-size: 10px; fill: var(--muted); font-family: monospace; }
+    .pin-active { animation: pinPulse .8s ease infinite alternate; }
+    @keyframes pinPulse { from { opacity: .4; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ NAV ══════════════════════════════════════════ -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#hero" class="nav-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="7" width="20" height="10" rx="2"/>
+        <path d="M6 7V5M10 7V4M14 7V5M18 7V4M6 17v2M10 17v3M14 17v2M18 17v3"/>
+      </svg>
+      EmbeddedSys
+    </a>
+    <ul class="nav-links">
+      <li><a href="#concepts">Concepts</a></li>
+      <li><a href="#demo">Code</a></li>
+      <li><a href="#peripherals">Peripherals</a></li>
+      <li><a href="#history">History</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ul>
+    <button id="theme-btn">🌙 Dark</button>
+  </div>
+</nav>
+
+<!-- ══════════════ HERO ═════════════════════════════════════════ -->
+<section id="hero">
+  <canvas id="circuit-canvas"></canvas>
+  <div class="pulse-ring"></div>
+  <div class="hero-content">
+    <span class="badge">⚡ Interactive Learning</span>
+    <h1 class="hero-title">Embedded<br>Systems</h1>
+    <p class="hero-sub">
+      Explore microcontrollers, real-time OS, interrupts, peripheral communication,
+      and the hardware–software interface that powers the modern world.
+    </p>
+    <div class="hero-cta">
+      <a href="#concepts" class="btn-primary">▶ Start Exploring</a>
+      <a href="#quiz" class="btn-outline">🎯 Test Your Knowledge</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num counter" data-target="12">0</span><span class="stat-label">Core Concepts</span></div>
+      <div class="stat"><span class="stat-num counter" data-target="8">0</span><span class="stat-label">Code Examples</span></div>
+      <div class="stat"><span class="stat-num counter" data-target="10">0</span><span class="stat-label">Quiz Questions</span></div>
+      <div class="stat"><span class="stat-num counter" data-target="30">0</span><span class="stat-label">Glossary Terms</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CONCEPTS ════════════════════════════════════ -->
+<section id="concepts">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Foundations</span>
+      <h2 class="section-title" style="margin-top:.8rem">Core Concepts</h2>
+      <p class="section-sub">The building blocks of every embedded system</p>
+    </div>
+    <div class="concepts-grid">
+
+      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+        <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">🧠</div>
+        <div class="card-title">Microcontroller (MCU)</div>
+        <div class="card-text">An MCU integrates CPU, RAM, Flash, and peripherals on a single chip. Popular families include ARM Cortex-M, AVR, PIC, and ESP32.</div>
+        <div class="card-tags">
+          <span class="tag">ARM Cortex-M</span><span class="tag">AVR</span><span class="tag">ESP32</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#7ee787">
+        <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">⏱️</div>
+        <div class="card-title">Real-Time OS (RTOS)</div>
+        <div class="card-text">An RTOS provides deterministic task scheduling, prioritisation, and inter-task communication via queues, semaphores and mutexes.</div>
+        <div class="card-tags">
+          <span class="tag">FreeRTOS</span><span class="tag">Zephyr</span><span class="tag">ThreadX</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#ff7b72">
+        <div class="card-icon" style="background:rgba(255,123,114,.12); font-size:1.6rem">⚡</div>
+        <div class="card-title">Interrupts & ISR</div>
+        <div class="card-text">Interrupts allow the CPU to respond immediately to hardware events, pausing normal execution and calling an Interrupt Service Routine (ISR).</div>
+        <div class="card-tags">
+          <span class="tag">NVIC</span><span class="tag">ISR</span><span class="tag">Priority</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#d2a8ff">
+        <div class="card-icon" style="background:rgba(210,168,255,.12); font-size:1.6rem">💾</div>
+        <div class="card-title">Memory Architecture</div>
+        <div class="card-text">Embedded systems use Flash (code), SRAM (runtime data), EEPROM (persistent config), and registers. Harvard vs. von Neumann architecture matters here.</div>
+        <div class="card-tags">
+          <span class="tag">Flash</span><span class="tag">SRAM</span><span class="tag">EEPROM</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#ffa657">
+        <div class="card-icon" style="background:rgba(255,166,87,.12); font-size:1.6rem">🔄</div>
+        <div class="card-title">DMA (Direct Memory Access)</div>
+        <div class="card-text">DMA controllers transfer data between memory and peripherals without CPU involvement, greatly reducing latency and power consumption.</div>
+        <div class="card-tags">
+          <span class="tag">DMA Channels</span><span class="tag">Burst Mode</span><span class="tag">Circular</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+        <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">🕑</div>
+        <div class="card-title">Timers & PWM</div>
+        <div class="card-text">Hardware timers generate precise delays, measure frequencies, and produce PWM signals for motor control, LED dimming, and more.</div>
+        <div class="card-tags">
+          <span class="tag">PWM</span><span class="tag">Input Capture</span><span class="tag">Output Compare</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#7ee787">
+        <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">📡</div>
+        <div class="card-title">Communication Protocols</div>
+        <div class="card-text">SPI, I²C, UART, CAN, USB — each protocol has trade-offs in speed, pin count, bus topology, and error detection.</div>
+        <div class="card-tags">
+          <span class="tag">SPI</span><span class="tag">I²C</span><span class="tag">UART</span><span class="tag">CAN</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#ff7b72">
+        <div class="card-icon" style="background:rgba(255,123,114,.12); font-size:1.6rem">🔋</div>
+        <div class="card-title">Power Management</div>
+        <div class="card-text">Sleep modes (sleep, deep sleep, stop, standby) drastically reduce current draw. Wake sources include RTC, GPIO, UART, and ADC threshold.</div>
+        <div class="card-tags">
+          <span class="tag">Sleep Modes</span><span class="tag">LDO</span><span class="tag">DCDC</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#d2a8ff">
+        <div class="card-icon" style="background:rgba(210,168,255,.12); font-size:1.6rem">🛡️</div>
+        <div class="card-title">Watchdog Timer (WDT)</div>
+        <div class="card-text">The WDT resets the MCU if software fails to "pet" it within a timeout, guarding against software hangs in safety-critical systems.</div>
+        <div class="card-tags">
+          <span class="tag">IWDG</span><span class="tag">WWDG</span><span class="tag">Timeout</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#ffa657">
+        <div class="card-icon" style="background:rgba(255,166,87,.12); font-size:1.6rem">🔧</div>
+        <div class="card-title">Bootloader</div>
+        <div class="card-text">A bootloader runs before the main application, validating firmware integrity and enabling field updates (FOTA) over UART, USB, or wireless.</div>
+        <div class="card-tags">
+          <span class="tag">DFU</span><span class="tag">FOTA</span><span class="tag">CRC</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#00d2ff">
+        <div class="card-icon" style="background:rgba(0,210,255,.12); font-size:1.6rem">📊</div>
+        <div class="card-title">ADC / DAC</div>
+        <div class="card-text">Analogue-to-Digital (ADC) and Digital-to-Analogue (DAC) converters bridge the analogue world of sensors and actuators with digital processing.</div>
+        <div class="card-tags">
+          <span class="tag">SAR ADC</span><span class="tag">Sigma-Delta</span><span class="tag">Resolution</span>
+        </div>
+      </div>
+
+      <div class="concept-card reveal" style="--card-accent:#7ee787">
+        <div class="card-icon" style="background:rgba(126,231,135,.12); font-size:1.6rem">🔍</div>
+        <div class="card-title">Debugging & JTAG</div>
+        <div class="card-text">JTAG and SWD interfaces allow a debugger to halt execution, inspect registers, set breakpoints, and trace instruction flow in real time.</div>
+        <div class="card-tags">
+          <span class="tag">JTAG</span><span class="tag">SWD</span><span class="tag">OpenOCD</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CODE DEMO ════════════════════════════════════ -->
+<section id="demo">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Hands-On</span>
+      <h2 class="section-title" style="margin-top:.8rem">Code Examples</h2>
+      <p class="section-sub">Real-world snippets from popular embedded frameworks</p>
+    </div>
+
+    <div class="tabs-wrapper reveal">
+      <div class="tab-list" role="tablist">
+        <button class="tab-btn active" data-tab="rtos">FreeRTOS Task</button>
+        <button class="tab-btn" data-tab="interrupt">ISR / Interrupt</button>
+        <button class="tab-btn" data-tab="spi">SPI Transfer</button>
+        <button class="tab-btn" data-tab="i2c">I²C Sensor</button>
+        <button class="tab-btn" data-tab="pwm">PWM / Timer</button>
+        <button class="tab-btn" data-tab="dma">DMA Transfer</button>
+        <button class="tab-btn" data-tab="power">Power Sleep</button>
+        <button class="tab-btn" data-tab="wdt">Watchdog</button>
+      </div>
+
+      <!-- RTOS Task -->
+      <div class="tab-panel active" id="tab-rtos">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — FreeRTOS</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="pp">#include</span> <span class="str">"FreeRTOS.h"</span>
+<span class="pp">#include</span> <span class="str">"task.h"</span>
+
+<span class="cmt">/* LED blink task */</span>
+<span class="kw">void</span> <span class="fn">vLedTask</span>(<span class="kw">void</span> *pvParams) {
+    <span class="kw">const</span> TickType_t xDelay = pdMS_TO_TICKS(<span class="num">500</span>);
+    <span class="kw">for</span> (;;) {
+        GPIO_TogglePin(LED_PORT, LED_PIN);
+        vTaskDelay(xDelay);
+    }
+}
+
+<span class="cmt">/* Sensor read task — higher priority */</span>
+<span class="kw">void</span> <span class="fn">vSensorTask</span>(<span class="kw">void</span> *pvParams) {
+    <span class="kw">for</span> (;;) {
+        <span class="ty">float</span> temp = <span class="fn">readTemperature</span>();
+        <span class="fn">xQueueSend</span>(xTempQueue, &temp, portMAX_DELAY);
+        vTaskDelay(pdMS_TO_TICKS(<span class="num">100</span>));
+    }
+}
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>) {
+    <span class="fn">xTaskCreate</span>(vLedTask,    <span class="str">"LED"</span>,    <span class="num">128</span>, <span class="num">NULL</span>, <span class="num">1</span>, <span class="num">NULL</span>);
+    <span class="fn">xTaskCreate</span>(vSensorTask, <span class="str">"Sensor"</span>, <span class="num">256</span>, <span class="num">NULL</span>, <span class="num">2</span>, <span class="num">NULL</span>);
+    <span class="fn">vTaskStartScheduler</span>();
+    <span class="kw">for</span> (;;); <span class="cmt">/* should never reach */</span>
+}</pre>
+          </div>
+          <div class="demo-info">
+            <h3>FreeRTOS Multi-Tasking</h3>
+            <p>FreeRTOS is the world's most popular RTOS for microcontrollers, used on billions of devices. It provides preemptive or cooperative task scheduling.</p>
+            <ul class="info-list">
+              <li>Tasks are independent functions with their own stack</li>
+              <li>Higher-priority tasks preempt lower-priority ones</li>
+              <li>Queues pass data safely between tasks</li>
+              <li>vTaskDelay() yields the CPU for a specified tick count</li>
+              <li>pdMS_TO_TICKS() converts ms to scheduler ticks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ISR -->
+      <div class="tab-panel" id="tab-interrupt">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — STM32 HAL</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="cmt">/* Configure EXTI line on PA0 */</span>
+<span class="fn">HAL_NVIC_SetPriority</span>(EXTI0_IRQn, <span class="num">2</span>, <span class="num">0</span>);
+<span class="fn">HAL_NVIC_EnableIRQ</span>(EXTI0_IRQn);
+
+<span class="cmt">/* ISR — keep it SHORT and FAST */</span>
+<span class="kw">void</span> <span class="fn">EXTI0_IRQHandler</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span> (<span class="fn">__HAL_GPIO_EXTI_GET_IT</span>(GPIO_PIN_0)) {
+        buttonPressFlag = <span class="num">1</span>; <span class="cmt">/* set flag */</span>
+        <span class="fn">__HAL_GPIO_EXTI_CLEAR_IT</span>(GPIO_PIN_0);
+    }
+}
+
+<span class="cmt">/* Main loop checks flag (deferred processing) */</span>
+<span class="kw">void</span> <span class="fn">processButton</span>(<span class="kw">void</span>) {
+    <span class="kw">if</span> (buttonPressFlag) {
+        buttonPressFlag = <span class="num">0</span>;
+        <span class="fn">toggleLED</span>();
+    }
+}</pre>
+          </div>
+          <div class="demo-info">
+            <h3>External Interrupts (EXTI)</h3>
+            <p>Interrupt-driven GPIO allows the MCU to react to button presses, sensor signals, or communication events without polling.</p>
+            <ul class="info-list">
+              <li>NVIC priority 0 = highest (pre-emptive)</li>
+              <li>ISRs must be short — avoid blocking calls</li>
+              <li>Use volatile flags for shared state</li>
+              <li>Deferred processing keeps ISR latency low</li>
+              <li>Always clear the interrupt flag to avoid re-entry</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPI -->
+      <div class="tab-panel" id="tab-spi">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — SPI HAL</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="cmt">/* SPI full-duplex transmit/receive */</span>
+<span class="ty">uint8_t</span> txBuf[<span class="num">4</span>] = {<span class="num">0x02</span>, <span class="num">0x00</span>, <span class="num">0x10</span>, <span class="num">0xFF</span>};
+<span class="ty">uint8_t</span> rxBuf[<span class="num">4</span>] = {<span class="num">0</span>};
+
+<span class="cmt">/* Assert chip-select (active low) */</span>
+<span class="fn">HAL_GPIO_WritePin</span>(CS_PORT, CS_PIN, GPIO_PIN_RESET);
+
+<span class="ty">HAL_StatusTypeDef</span> status =
+    <span class="fn">HAL_SPI_TransmitReceive</span>(
+        &hspi1, txBuf, rxBuf, <span class="num">4</span>, <span class="num">10</span>);
+
+<span class="cmt">/* De-assert CS */</span>
+<span class="fn">HAL_GPIO_WritePin</span>(CS_PORT, CS_PIN, GPIO_PIN_SET);
+
+<span class="kw">if</span> (status == HAL_OK) {
+    <span class="fn">processResponse</span>(rxBuf, <span class="num">4</span>);
+} <span class="kw">else</span> {
+    <span class="fn">handleSPIError</span>(status);
+}</pre>
+          </div>
+          <div class="demo-info">
+            <h3>SPI — Serial Peripheral Interface</h3>
+            <p>SPI is a synchronous, full-duplex, master-slave protocol ideal for high-speed peripherals like flash memory, ADCs, and displays.</p>
+            <ul class="info-list">
+              <li>4-wire bus: SCK, MOSI, MISO, CS</li>
+              <li>Speeds up to 80+ MHz on modern MCUs</li>
+              <li>CS line selects one of multiple slaves</li>
+              <li>Four modes (CPOL/CPHA) define clock polarity</li>
+              <li>DMA-based transfers offload the CPU entirely</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- I2C -->
+      <div class="tab-panel" id="tab-i2c">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — I²C / BME280</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="pp">#define</span> BME280_ADDR  <span class="num">0x76</span>
+<span class="pp">#define</span> REG_TEMP_MSB <span class="num">0xFA</span>
+
+<span class="cmt">/* Write register address then read data */</span>
+<span class="ty">uint8_t</span> regAddr = REG_TEMP_MSB;
+<span class="ty">uint8_t</span> rawData[<span class="num">3</span>];
+
+<span class="fn">HAL_I2C_Master_Transmit</span>(
+    &hi2c1,
+    BME280_ADDR &lt;&lt; <span class="num">1</span>,
+    &regAddr, <span class="num">1</span>, <span class="num">10</span>);
+
+<span class="fn">HAL_I2C_Master_Receive</span>(
+    &hi2c1,
+    (BME280_ADDR &lt;&lt; <span class="num">1</span>) | <span class="num">0x01</span>,
+    rawData, <span class="num">3</span>, <span class="num">10</span>);
+
+<span class="cmt">/* Combine 20-bit temperature raw value */</span>
+<span class="ty">int32_t</span> raw_temp =
+    ((rawData[<span class="num">0</span>] &lt;&lt; <span class="num">12</span>) |
+     (rawData[<span class="num">1</span>] &lt;&lt; <span class="num">4</span>)  |
+     (rawData[<span class="num">2</span>] &gt;&gt; <span class="num">4</span>));
+<span class="ty">float</span> temp_c = <span class="fn">bme280_compensate_temp</span>(raw_temp);</pre>
+          </div>
+          <div class="demo-info">
+            <h3>I²C — Inter-Integrated Circuit</h3>
+            <p>I²C is a 2-wire multi-master bus perfect for sensors and low-speed peripherals. Each device has a 7- or 10-bit address.</p>
+            <ul class="info-list">
+              <li>Only 2 wires: SDA (data) + SCL (clock)</li>
+              <li>Up to 127 devices on one bus</li>
+              <li>Standard mode 100 kHz, Fast 400 kHz, HS 3.4 MHz</li>
+              <li>Address shifted left by 1, LSB = R/W bit</li>
+              <li>Requires pull-up resistors on both lines</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PWM -->
+      <div class="tab-panel" id="tab-pwm">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — PWM / Servo</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="cmt">/* TIM2 at 50 Hz (20 ms period) for servo */</span>
+<span class="fn">HAL_TIM_PWM_Start</span>(&htim2, TIM_CHANNEL_1);
+
+<span class="cmt">/* Servo: 1ms = 0°, 1.5ms = 90°, 2ms = 180° */</span>
+<span class="kw">void</span> <span class="fn">setServoAngle</span>(<span class="ty">uint8_t</span> degrees) {
+    <span class="cmt">/* Map 0-180° → 500-2500 µs pulse */</span>
+    <span class="ty">uint32_t</span> pulse =
+        <span class="num">500</span> + (((<span class="ty">uint32_t</span>)degrees * <span class="num">2000</span>) / <span class="num">180</span>);
+    <span class="cmt">/* CCR = pulse * (timer_freq / 1,000,000) */</span>
+    __HAL_TIM_SET_COMPARE(&htim2,
+        TIM_CHANNEL_1, pulse);
+}
+
+<span class="cmt">/* LED dimming via duty cycle */</span>
+<span class="kw">void</span> <span class="fn">setLEDBrightness</span>(<span class="ty">uint8_t</span> pct) {
+    <span class="ty">uint32_t</span> arr = __HAL_TIM_GET_AUTORELOAD(&htim3);
+    __HAL_TIM_SET_COMPARE(&htim3,
+        TIM_CHANNEL_2, (arr * pct) / <span class="num">100</span>);
+}</pre>
+          </div>
+          <div class="demo-info">
+            <h3>PWM — Pulse Width Modulation</h3>
+            <p>PWM generates a digital square wave with a variable duty cycle, allowing digital control of analogue quantities like brightness and motor speed.</p>
+            <ul class="info-list">
+              <li>Duty cycle = ON time / Period × 100%</li>
+              <li>Frequency set by ARR register (auto-reload)</li>
+              <li>Compare value (CCR) sets pulse width</li>
+              <li>Servos expect 50 Hz with 1–2 ms pulses</li>
+              <li>Complementary outputs for H-bridge motor drivers</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DMA -->
+      <div class="tab-panel" id="tab-dma">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — UART DMA</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="pp">#define</span> RX_BUF_SIZE <span class="num">256</span>
+<span class="ty">volatile uint8_t</span> rxBuf[RX_BUF_SIZE];
+
+<span class="cmt">/* Circular DMA — never stops, CPU untouched */</span>
+<span class="fn">HAL_UART_Receive_DMA</span>(
+    &huart1, (<span class="ty">uint8_t</span>*)rxBuf, RX_BUF_SIZE);
+
+<span class="cmt">/* Idle-line detection triggers callback */</span>
+<span class="fn">__HAL_UART_ENABLE_IT</span>(&huart1, UART_IT_IDLE);
+
+<span class="kw">void</span> <span class="fn">HAL_UART_RxCpltCallback</span>(UART_HandleTypeDef *h){
+    <span class="kw">if</span> (h-&gt;Instance == USART1) {
+        <span class="ty">uint16_t</span> pos = RX_BUF_SIZE -
+            <span class="fn">__HAL_DMA_GET_COUNTER</span>(h-&gt;hdmarx);
+        <span class="fn">processPacket</span>((<span class="ty">uint8_t</span>*)rxBuf, pos);
+    }
+}
+
+<span class="cmt">/* CPU is free to do other work! */</span></pre>
+          </div>
+          <div class="demo-info">
+            <h3>DMA — Direct Memory Access</h3>
+            <p>DMA controllers autonomously move data, freeing the CPU for computation. Critical for high-throughput ADC sampling, UART, SPI, and audio.</p>
+            <ul class="info-list">
+              <li>Circular mode enables continuous reception</li>
+              <li>Half-transfer and full-transfer interrupts available</li>
+              <li>IDLE line interrupt detects end of packet</li>
+              <li>Zero CPU cycles spent per transferred byte</li>
+              <li>Cache coherency must be managed on Cortex-M7</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Power -->
+      <div class="tab-panel" id="tab-power">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — Low Power</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="pp">#include</span> <span class="str">"stm32l4xx_hal.h"</span>
+
+<span class="cmt">/* Configure RTC wakeup every 10 s */</span>
+<span class="fn">HAL_RTCEx_SetWakeUpTimer_IT</span>(
+    &hrtc, <span class="num">10</span>, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
+
+<span class="kw">void</span> <span class="fn">enterStopMode</span>(<span class="kw">void</span>) {
+    <span class="cmt">/* Disable all non-essential clocks */</span>
+    <span class="fn">HAL_SuspendTick</span>();
+
+    <span class="cmt">/* Enter STOP2 — SRAM retained, ~1 µA */</span>
+    <span class="fn">HAL_PWREx_EnterSTOP2Mode</span>(
+        PWR_STOPENTRY_WFI);
+
+    <span class="cmt">/* MCU resumes here after wakeup */</span>
+    <span class="fn">SystemClock_Config</span>(); <span class="cmt">/* re-init PLL */</span>
+    <span class="fn">HAL_ResumeTick</span>();
+}
+
+<span class="cmt">/* Wakeup ISR */</span>
+<span class="kw">void</span> <span class="fn">RTC_WKUP_IRQHandler</span>(<span class="kw">void</span>) {
+    <span class="fn">HAL_RTCEx_WakeUpTimerIRQHandler</span>(&hrtc);
+}</pre>
+          </div>
+          <div class="demo-info">
+            <h3>Ultra Low Power Design</h3>
+            <p>Modern MCUs offer multiple sleep states with different wake-up latencies and current draws, enabling battery life measured in years.</p>
+            <ul class="info-list">
+              <li>STOP2 on STM32L4: ~1 µA with RAM retention</li>
+              <li>Standby mode: sub-µA but RAM lost</li>
+              <li>Always wake via RTC, WKUP pin, or LPUART</li>
+              <li>Disable or clock-gate unused peripherals first</li>
+              <li>Reinitialise PLL after stop mode returns</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- WDT -->
+      <div class="tab-panel" id="tab-wdt">
+        <div class="demo-grid">
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span class="code-lang">C — Watchdog</span>
+              <button class="copy-btn" onclick="copyCode(this)">⎘ Copy</button>
+            </div>
+<pre><span class="cmt">/* Independent Watchdog — runs on LSI ~32 kHz */</span>
+IWDG-&gt;KR  = <span class="num">0xCCCC</span>; <span class="cmt">/* Start WDT */</span>
+IWDG-&gt;KR  = <span class="num">0x5555</span>; <span class="cmt">/* Unlock registers */</span>
+IWDG-&gt;PR  = <span class="num">4</span>;      <span class="cmt">/* Prescaler /64 → 2 ms tick */</span>
+IWDG-&gt;RLR = <span class="num">2000</span>;   <span class="cmt">/* Reload → 4 s timeout */</span>
+IWDG-&gt;KR  = <span class="num">0xAAAA</span>; <span class="cmt">/* Reload counter */</span>
+
+<span class="cmt">/* "Pet" the watchdog in main loop */</span>
+<span class="kw">void</span> <span class="fn">mainLoop</span>(<span class="kw">void</span>) {
+    <span class="kw">while</span> (<span class="num">1</span>) {
+        <span class="fn">doWork</span>();
+        IWDG-&gt;KR = <span class="num">0xAAAA</span>; <span class="cmt">/* reset timer */</span>
+    }
+    <span class="cmt">/* If loop hangs → WDT resets MCU */</span>
+}
+
+<span class="cmt">/* Check reset cause on boot */</span>
+<span class="kw">if</span> (<span class="fn">__HAL_RCC_GET_FLAG</span>(RCC_FLAG_IWDGRST))
+    <span class="fn">logEvent</span>(<span class="str">"WDT reset detected"</span>);</pre>
+          </div>
+          <div class="demo-info">
+            <h3>Watchdog Timer (IWDG)</h3>
+            <p>The Independent Watchdog runs on its own clock, separate from the main system clock, ensuring a reset even if the CPU clock fails.</p>
+            <ul class="info-list">
+              <li>IWDG is independent of the main system clock</li>
+              <li>Cannot be disabled after started (by design)</li>
+              <li>WWDG (window WDT) also detects too-early petting</li>
+              <li>Always check reset cause to log watchdog events</li>
+              <li>Essential for IEC 61508 / ISO 26262 safety compliance</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tabs-wrapper -->
+  </div>
+</section>
+
+<!-- ══════════════ PERIPHERALS ══════════════════════════════════ -->
+<section id="peripherals">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Interfaces</span>
+      <h2 class="section-title" style="margin-top:.8rem">Communication Protocols</h2>
+      <p class="section-sub">Choose the right protocol for every job</p>
+    </div>
+    <div class="periph-grid">
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🔀</div>
+          <div><div class="periph-name">UART</div><div class="periph-full">Universal Async Receiver-Transmitter</div></div>
+        </div>
+        <div class="periph-desc">Asynchronous point-to-point serial. Uses TX/RX wires. No shared clock. Baud rate must match on both ends. Simple and ubiquitous.</div>
+        <div class="periph-speed">⚡ Up to ~5 Mbps</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🔁</div>
+          <div><div class="periph-name">SPI</div><div class="periph-full">Serial Peripheral Interface</div></div>
+        </div>
+        <div class="periph-desc">Synchronous full-duplex. 4 wires: SCK, MOSI, MISO, CS. Master-slave topology. Fast, no addressing needed, one CS per slave.</div>
+        <div class="periph-speed">⚡ Up to 80+ MHz</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🔗</div>
+          <div><div class="periph-name">I²C</div><div class="periph-full">Inter-Integrated Circuit</div></div>
+        </div>
+        <div class="periph-desc">2-wire multi-master bus. Supports up to 127 slave devices on one bus. Slower than SPI but requires only SDA + SCL.</div>
+        <div class="periph-speed">⚡ Up to 3.4 MHz (HS)</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🚌</div>
+          <div><div class="periph-name">CAN Bus</div><div class="periph-full">Controller Area Network</div></div>
+        </div>
+        <div class="periph-desc">Differential multi-master bus designed for automotive and industrial. Robust error detection, priority-based arbitration, no central master.</div>
+        <div class="periph-speed">⚡ Up to 1 Mbps (CAN FD: 8 Mbps)</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🔌</div>
+          <div><div class="periph-name">USB</div><div class="periph-full">Universal Serial Bus</div></div>
+        </div>
+        <div class="periph-desc">High-speed host/device protocol. Supports CDC (virtual COM), HID, MSC classes. USB FS at 12 Mbps, HS at 480 Mbps.</div>
+        <div class="periph-speed">⚡ Up to 480 Mbps (HS)</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">📻</div>
+          <div><div class="periph-name">LIN Bus</div><div class="periph-full">Local Interconnect Network</div></div>
+        </div>
+        <div class="periph-desc">Single-wire, low-cost sub-bus for automotive body electronics. Master-slave, 20 kbps max. Commonly combined with CAN for cost reduction.</div>
+        <div class="periph-speed">⚡ Up to 20 kbps</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🔢</div>
+          <div><div class="periph-name">1-Wire</div><div class="periph-full">One-Wire Protocol (Dallas)</div></div>
+        </div>
+        <div class="periph-desc">Single-wire data + power parasite supply. Primarily used by temperature sensors like DS18B20. Very low speed but minimal wiring.</div>
+        <div class="periph-speed">⚡ Up to 16.3 kbps</div>
+      </div>
+
+      <div class="periph-card reveal">
+        <div class="periph-head">
+          <div class="periph-icon">🎵</div>
+          <div><div class="periph-name">I²S</div><div class="periph-full">Inter-IC Sound</div></div>
+        </div>
+        <div class="periph-desc">3-wire synchronous audio bus: SCK, WS (word select), SD. Carries PCM audio data for DACs, ADCs, and digital microphones (PDM/I²S).</div>
+        <div class="periph-speed">⚡ Up to 3.072 MHz (audio)</div>
+      </div>
+
+    </div>
+
+    <!-- Comparison table -->
+    <div class="arch-diagram reveal" style="margin-top:2.5rem; overflow-x:auto">
+      <table style="width:100%; border-collapse:collapse; font-size:.875rem; min-width:500px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border); text-align:left">
+            <th style="padding:.6rem .8rem; color:var(--accent)">Protocol</th>
+            <th style="padding:.6rem .8rem; color:var(--accent)">Wires</th>
+            <th style="padding:.6rem .8rem; color:var(--accent)">Speed</th>
+            <th style="padding:.6rem .8rem; color:var(--accent)">Topology</th>
+            <th style="padding:.6rem .8rem; color:var(--accent)">Full-Duplex</th>
+          </tr>
+        </thead>
+        <tbody id="proto-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ ARCHITECTURE ════════════════════════════════ -->
+<section id="architecture" style="background:var(--bg2)!important">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Internals</span>
+      <h2 class="section-title" style="margin-top:.8rem">MCU Architecture</h2>
+      <p class="section-sub">Inside a typical ARM Cortex-M microcontroller</p>
+    </div>
+    <div class="arch-diagram reveal">
+      <svg class="arch-svg" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" style="font-family:monospace">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#00d2ff" opacity=".7"/>
+          </marker>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <style>
+          .arch-box { rx:8; ry:8; fill:none; stroke-width:1.5 }
+          .arch-txt { font-size:12px; text-anchor:middle; dominant-baseline:middle }
+          .arch-sub { font-size:9px; text-anchor:middle; dominant-baseline:middle; opacity:.6 }
+          .arch-bus { stroke-width:2; stroke-dasharray:none }
+        </style>
+
+        <!-- CPU Core -->
+        <rect class="arch-box" x="370" y="30" width="160" height="80" stroke="#00d2ff" fill="rgba(0,210,255,.08)" filter="url(#glow)"/>
+        <text class="arch-txt" x="450" y="60" fill="#00d2ff">ARM Cortex-M</text>
+        <text class="arch-sub" x="450" y="78" fill="#00d2ff">CPU Core + FPU</text>
+        <text class="arch-sub" x="450" y="95" fill="#8b949e">Pipeline · NVIC · MPU</text>
+
+        <!-- Flash -->
+        <rect class="arch-box" x="50" y="30" width="130" height="70" stroke="#7ee787" fill="rgba(126,231,135,.07)"/>
+        <text class="arch-txt" x="115" y="57" fill="#7ee787">Flash Memory</text>
+        <text class="arch-sub" x="115" y="73" fill="#8b949e">Code + Constants</text>
+        <text class="arch-sub" x="115" y="86" fill="#8b949e">up to 2 MB</text>
+
+        <!-- SRAM -->
+        <rect class="arch-box" x="720" y="30" width="130" height="70" stroke="#d2a8ff" fill="rgba(210,168,255,.07)"/>
+        <text class="arch-txt" x="785" y="57" fill="#d2a8ff">SRAM</text>
+        <text class="arch-sub" x="785" y="73" fill="#8b949e">Stack · Heap · BSS</text>
+        <text class="arch-sub" x="785" y="86" fill="#8b949e">up to 640 KB</text>
+
+        <!-- AHB Bus -->
+        <rect x="100" y="140" width="700" height="22" rx="4" fill="rgba(0,210,255,.08)" stroke="#00d2ff" stroke-width="1"/>
+        <text class="arch-txt" x="450" y="151" fill="#00d2ff" font-size="10">AHB / APB Bus Matrix</text>
+
+        <!-- DMA -->
+        <rect class="arch-box" x="50" y="190" width="110" height="60" stroke="#ffa657" fill="rgba(255,166,87,.07)"/>
+        <text class="arch-txt" x="105" y="215" fill="#ffa657">DMA</text>
+        <text class="arch-sub" x="105" y="230" fill="#8b949e">Controller</text>
+        <text class="arch-sub" x="105" y="242" fill="#8b949e">Streams/Channels</text>
+
+        <!-- Timers -->
+        <rect class="arch-box" x="200" y="190" width="110" height="60" stroke="#ff7b72" fill="rgba(255,123,114,.07)"/>
+        <text class="arch-txt" x="255" y="215" fill="#ff7b72">Timers</text>
+        <text class="arch-sub" x="255" y="230" fill="#8b949e">TIM1–TIM17</text>
+        <text class="arch-sub" x="255" y="242" fill="#8b949e">PWM · Capture</text>
+
+        <!-- UART -->
+        <rect class="arch-box" x="350" y="190" width="110" height="60" stroke="#7ee787" fill="rgba(126,231,135,.07)"/>
+        <text class="arch-txt" x="405" y="215" fill="#7ee787">UART/USART</text>
+        <text class="arch-sub" x="405" y="230" fill="#8b949e">Async Serial</text>
+        <text class="arch-sub" x="405" y="242" fill="#8b949e">+ LIN / IrDA</text>
+
+        <!-- SPI/I2C -->
+        <rect class="arch-box" x="500" y="190" width="110" height="60" stroke="#d2a8ff" fill="rgba(210,168,255,.07)"/>
+        <text class="arch-txt" x="555" y="215" fill="#d2a8ff">SPI / I²C</text>
+        <text class="arch-sub" x="555" y="230" fill="#8b949e">Sync Protocols</text>
+        <text class="arch-sub" x="555" y="242" fill="#8b949e">+ I²S</text>
+
+        <!-- ADC/DAC -->
+        <rect class="arch-box" x="650" y="190" width="110" height="60" stroke="#ffa657" fill="rgba(255,166,87,.07)"/>
+        <text class="arch-txt" x="705" y="215" fill="#ffa657">ADC / DAC</text>
+        <text class="arch-sub" x="705" y="230" fill="#8b949e">Analogue I/O</text>
+        <text class="arch-sub" x="705" y="242" fill="#8b949e">12–16 bit</text>
+
+        <!-- GPIO -->
+        <rect class="arch-box" x="810" y="190" width="80" height="60" stroke="#00d2ff" fill="rgba(0,210,255,.07)"/>
+        <text class="arch-txt" x="850" y="215" fill="#00d2ff">GPIO</text>
+        <text class="arch-sub" x="850" y="230" fill="#8b949e">Digital I/O</text>
+        <text class="arch-sub" x="850" y="242" fill="#8b949e">Alt. functions</text>
+
+        <!-- External world -->
+        <rect class="arch-box" x="50" y="310" width="800" height="70" stroke="#30363d" fill="rgba(48,54,61,.3)"/>
+        <text class="arch-txt" x="450" y="335" fill="#8b949e">External World (Sensors · Actuators · Displays · Networks)</text>
+        <text class="arch-sub" x="450" y="355" fill="#8b949e">Buttons · LEDs · Motors · IMU · Flash · BLE · WiFi · CAN · LIN …</text>
+        <text class="arch-sub" x="450" y="370" fill="#8b949e">5V ↔ 3.3V Level Shifters · ESD Protection · PCB Traces</text>
+
+        <!-- Arrows: CPU ↔ Bus -->
+        <line x1="450" y1="110" x2="450" y2="140" stroke="#00d2ff" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="450" y1="140" x2="450" y2="110" stroke="#00d2ff" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- Bus ↔ Flash -->
+        <line x1="180" y1="100" x2="370" y2="70" stroke="#7ee787" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/>
+
+        <!-- Bus ↔ SRAM -->
+        <line x1="720" y1="70" x2="530" y2="70" stroke="#d2a8ff" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/>
+
+        <!-- Bus ↔ Peripherals -->
+        <line x1="105" y1="162" x2="105" y2="190" stroke="#ffa657" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="255" y1="162" x2="255" y2="190" stroke="#ff7b72" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="405" y1="162" x2="405" y2="190" stroke="#7ee787" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="555" y1="162" x2="555" y2="190" stroke="#d2a8ff" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="705" y1="162" x2="705" y2="190" stroke="#ffa657" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="850" y1="162" x2="850" y2="190" stroke="#00d2ff" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <!-- Peripherals ↔ World -->
+        <line x1="105" y1="250" x2="105" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <line x1="255" y1="250" x2="255" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <line x1="405" y1="250" x2="405" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <line x1="555" y1="250" x2="555" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <line x1="705" y1="250" x2="705" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <line x1="850" y1="250" x2="850" y2="310" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+      </svg>
+    </div>
+
+    <!-- Skills/Complexity Bars -->
+    <div style="margin-top:3rem">
+      <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:1.5rem; color:var(--accent4)">Concept Complexity &amp; Industry Usage</h3>
+      <div class="skill-grid" id="skill-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ HISTORY ══════════════════════════════════════ -->
+<section id="history">
+  <div class="container" style="max-width:800px">
+    <div class="section-head reveal">
+      <span class="badge">Timeline</span>
+      <h2 class="section-title" style="margin-top:.8rem">History of Embedded Systems</h2>
+      <p class="section-sub">From Apollo guidance to IoT ubiquity</p>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<!-- ══════════════ QUIZ ═════════════════════════════════════════ -->
+<section id="quiz" style="background:var(--bg2)!important">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Challenge</span>
+      <h2 class="section-title" style="margin-top:.8rem">Test Your Knowledge</h2>
+      <p class="section-sub">10 questions covering all major topics</p>
+    </div>
+    <div class="quiz-card reveal" id="quiz-container">
+      <div id="quiz-question-area">
+        <div class="quiz-q" id="q-text"></div>
+        <div class="quiz-options" id="q-options"></div>
+      </div>
+      <div id="quiz-result">
+        <div class="result-emoji" id="result-emoji">🎉</div>
+        <h3 id="result-title" style="font-size:1.4rem; font-weight:700"></h3>
+        <p id="result-desc"></p>
+        <button class="btn-primary" style="margin-top:1.2rem" onclick="resetQuiz()">↺ Try Again</button>
+      </div>
+      <div class="quiz-footer">
+        <span class="quiz-progress" id="q-progress">Question 1 / 10</span>
+        <span class="quiz-score" id="q-score">Score: 0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ GLOSSARY ═════════════════════════════════════ -->
+<section id="glossary">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="badge">Reference</span>
+      <h2 class="section-title" style="margin-top:.8rem">Glossary</h2>
+      <p class="section-sub">30 essential embedded systems terms</p>
+    </div>
+    <input class="glossary-search reveal" type="search" id="gloss-search" placeholder="🔍  Search terms…" />
+    <div class="glossary-grid" id="gloss-grid"></div>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ═══════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">⚙️ EmbeddedSys</div>
+    <div class="footer-sub">An interactive guide to embedded systems concepts</div>
+    <div class="footer-links">
+      <a href="#concepts">Concepts</a>
+      <a href="#demo">Code</a>
+      <a href="#peripherals">Peripherals</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#history">History</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#glossary">Glossary</a>
+    </div>
+    <div class="footer-copy">Built with pure HTML · CSS · JavaScript — no frameworks, no dependencies</div>
+  </div>
+</footer>
+
+<!-- ══════════════ JAVASCRIPT ═══════════════════════════════════ -->
+<script>
+/* ─── Theme toggle ─────────────────────────────────────────── */
+const themeBtn = document.getElementById('theme-btn');
+let isDark = true;
+themeBtn.addEventListener('click', () => {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  themeBtn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+});
+
+/* ─── Circuit Board Canvas ─────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('circuit-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, nodes, tick = 0;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    init();
+  }
+
+  function init() {
+    nodes = [];
+    const cols = Math.ceil(W / 60), rows = Math.ceil(H / 60);
+    for (let r = 0; r <= rows; r++) {
+      for (let c = 0; c <= cols; c++) {
+        nodes.push({
+          x: c * 60 + (Math.random() - .5) * 20,
+          y: r * 60 + (Math.random() - .5) * 20,
+          connected: Math.random() > .4
+        });
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const isDk = document.documentElement.getAttribute('data-theme') !== 'light';
+    const lineColor = isDk ? '0,210,255' : '0,100,200';
+    const dotColor  = isDk ? '126,231,135' : '30,130,80';
+    tick++;
+
+    ctx.strokeStyle = `rgba(${lineColor},.25)`;
+    ctx.lineWidth = .8;
+    nodes.forEach((n, i) => {
+      if (!n.connected) return;
+      nodes.slice(i + 1).forEach(m => {
+        const d = Math.hypot(n.x - m.x, n.y - m.y);
+        if (d < 90 && m.connected) {
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          // L-shaped routing
+          const mid = (Math.random() > .5) ?
+            { x: n.x, y: m.y } : { x: m.x, y: n.y };
+          ctx.lineTo(mid.x, mid.y);
+          ctx.lineTo(m.x, m.y);
+          ctx.stroke();
+        }
+      });
+    });
+
+    // Draw nodes
+    nodes.forEach((n, i) => {
+      if (!n.connected) return;
+      const pulse = Math.sin(tick * .02 + i * .5) > .8;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, pulse ? 4 : 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = pulse
+        ? `rgba(${lineColor},1)`
+        : `rgba(${dotColor},.6)`;
+      ctx.fill();
+    });
+
+    // Travelling signal
+    const signalIdx = (Math.floor(tick / 2)) % nodes.length;
+    const sn = nodes[signalIdx];
+    ctx.beginPath();
+    ctx.arc(sn.x, sn.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${lineColor},.9)`;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(sn.x, sn.y, 10, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${lineColor},.3)`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+/* ─── Counter animation ────────────────────────────────────── */
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = +el.dataset.target;
+    let current = 0;
+    const step = Math.ceil(target / 30);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 40);
+  });
+}
+// Trigger when hero is visible
+new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) animateCounters();
+}, { threshold: .3 }).observe(document.getElementById('hero'));
+
+/* ─── Scroll reveal ────────────────────────────────────────── */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ─── Timeline items reveal ────────────────────────────────── */
+const tlObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      tlObs.unobserve(e.target);
+    }
+  });
+}, { threshold: .1 });
+document.querySelectorAll('.tl-item').forEach(el => tlObs.observe(el));
+
+/* ─── Skill bar observer ───────────────────────────────────── */
+const skillObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.skill-fill').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+      skillObs.unobserve(e.target);
+    }
+  });
+}, { threshold: .2 });
+
+/* ─── Tab switching ────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ─── Copy code ────────────────────────────────────────────── */
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⎘ Copy', 1800);
+  });
+}
+
+/* ─── Protocol comparison table ────────────────────────────── */
+const protocols = [
+  ['UART',  '2 (TX, RX)',      'Up to 5 Mbps',    'Point-to-point',    '✓'],
+  ['SPI',   '4 (SCK/MOSI/MISO/CS)', 'Up to 80 MHz', 'Master-slave',   '✓'],
+  ['I²C',   '2 (SDA, SCL)',    'Up to 3.4 MHz',    'Multi-master bus',  '✗'],
+  ['CAN',   '2 (CANH, CANL)',  'Up to 8 Mbps',     'Multi-master bus',  '✗'],
+  ['USB',   '4 (D+/D−/VCC/GND)', 'Up to 480 Mbps','Host-device',       '✓'],
+  ['LIN',   '1 (LIN)',         'Up to 20 kbps',    'Master-slave bus',  '✗'],
+  ['1-Wire','1 (data+power)',  'Up to 16.3 kbps',  'Multi-drop',        '✗'],
+  ['I²S',   '3 (SCK/WS/SD)',   'Varies (audio)',   'Master-slave',      '✗'],
+];
+const tbody = document.getElementById('proto-table-body');
+protocols.forEach((row, i) => {
+  const tr = document.createElement('tr');
+  tr.style.cssText = `border-bottom:1px solid var(--border); background:${i%2?'transparent':'rgba(0,210,255,.02)'}`;
+  row.forEach((cell, j) => {
+    const td = document.createElement('td');
+    td.style.cssText = 'padding:.55rem .8rem; color:var(--muted)';
+    if (j === 0) { td.style.color = 'var(--text)'; td.style.fontWeight = '600'; }
+    if (j === 4) { td.style.color = cell === '✓' ? 'var(--accent2)' : 'var(--accent3)'; }
+    td.textContent = cell;
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+});
+
+/* ─── Skills data ───────────────────────────────────────────── */
+const skills = [
+  { name: 'Microcontrollers',   pct: 95, color: '#00d2ff' },
+  { name: 'RTOS / Scheduling',  pct: 82, color: '#7ee787' },
+  { name: 'Interrupts',         pct: 90, color: '#ff7b72' },
+  { name: 'DMA',                pct: 78, color: '#ffa657' },
+  { name: 'SPI / I²C / UART',   pct: 92, color: '#d2a8ff' },
+  { name: 'Power Management',   pct: 70, color: '#00d2ff' },
+  { name: 'Bootloaders',        pct: 65, color: '#7ee787' },
+  { name: 'Safety (IEC 61508)', pct: 55, color: '#ff7b72' },
+];
+const skillGrid = document.getElementById('skill-grid');
+skills.forEach(s => {
+  skillGrid.innerHTML += `
+    <div class="skill-item">
+      <div class="skill-row">
+        <span class="skill-name">${s.name}</span>
+        <span class="skill-pct">${s.pct}%</span>
+      </div>
+      <div class="skill-bar">
+        <div class="skill-fill" data-pct="${s.pct}" style="background:linear-gradient(90deg,${s.color},${s.color}aa)"></div>
+      </div>
+    </div>`;
+});
+skillObs.observe(skillGrid);
+
+/* ─── Timeline data ─────────────────────────────────────────── */
+const history = [
+  { year: '1961', title: 'Apollo Guidance Computer', desc: 'The first recognisable embedded system — a custom IC-based computer weighing 32 kg, guiding humans to the Moon.' },
+  { year: '1971', title: 'Intel 4004 — First Commercial MCU', desc: 'A 4-bit processor on a single chip. Originally designed for a calculator, it launched the microprocessor revolution.' },
+  { year: '1976', title: 'Intel 8048 — True Embedded MCU', desc: 'Integrated CPU, ROM, RAM, and I/O on one chip. Used in keyboards worldwide, setting the template for all modern MCUs.' },
+  { year: '1980', title: 'Motorola 68HC11', desc: 'A powerful 8-bit MCU with on-chip ADC, PWM, and serial ports. Dominated automotive and industrial controls for two decades.' },
+  { year: '1984', title: 'ARM Architecture Founded', desc: 'Acorn developed the first ARM processor. Its RISC design offered exceptional performance-per-milliwatt — now in 95% of smartphones.' },
+  { year: '1991', title: 'First Linux Kernel', desc: 'Linus Torvalds released Linux, which would become the dominant embedded OS kernel for networking, industrial, and automotive systems.' },
+  { year: '1996', title: 'FreeRTOS Created', desc: 'Richard Barry created FreeRTOS, now the world\'s most deployed embedded RTOS with over 235 million devices.' },
+  { year: '2003', title: 'ARM Cortex-M Series', desc: 'Cortex-M3 launched a new era of 32-bit MCUs for deeply embedded applications, replacing 8/16-bit MCUs in many designs.' },
+  { year: '2012', title: 'Arduino Goes Mainstream', desc: 'Low-cost ARM-based boards like Raspberry Pi and Arduino democratised embedded development for millions of makers.' },
+  { year: '2016', title: 'IoT Explosion & MQTT', desc: 'ESP8266/ESP32 brought WiFi/BLE to $2 modules. IoT protocols like MQTT and CoAP became industry standards.' },
+  { year: '2020', title: 'RISC-V Gains Momentum', desc: 'Open-source RISC-V cores appear in production MCUs (GD32VF103, SiFive FE310), challenging the ARM monopoly.' },
+  { year: '2024', title: 'AI on Microcontrollers', desc: 'TinyML and NPUs integrated into MCUs (STM32N6, nRF9161) enable on-device machine learning at sub-mW power budgets.' },
+];
+const tlEl = document.getElementById('timeline');
+history.forEach(h => {
+  const div = document.createElement('div');
+  div.className = 'tl-item';
+  div.innerHTML = `
+    <div class="tl-dot"></div>
+    <div class="tl-year">${h.year}</div>
+    <div class="tl-title">${h.title}</div>
+    <div class="tl-desc">${h.desc}</div>`;
+  tlEl.appendChild(div);
+  tlObs.observe(div);
+});
+
+/* ─── Quiz data ─────────────────────────────────────────────── */
+const quizData = [
+  {
+    q: 'What does RTOS stand for?',
+    opts: ['Real-Time Operating System','Remote Task Operating Signal','Random Trigger Output Source','Relay Toggle Output Sensor'],
+    ans: 0
+  },
+  {
+    q: 'Which register in Cortex-M manages interrupt priorities?',
+    opts: ['SysTick','NVIC (Nested Vectored Interrupt Controller)','DWT','ITM'],
+    ans: 1
+  },
+  {
+    q: 'What is the purpose of a watchdog timer?',
+    opts: ['Measure elapsed time','Generate PWM signals','Reset the MCU if software hangs','Regulate supply voltage'],
+    ans: 2
+  },
+  {
+    q: 'SPI uses how many wires for a single slave?',
+    opts: ['2','3','4','6'],
+    ans: 2
+  },
+  {
+    q: 'I²C addresses are typically how many bits wide?',
+    opts: ['4-bit','7-bit (or 10-bit extended)','16-bit','32-bit'],
+    ans: 1
+  },
+  {
+    q: 'DMA stands for:',
+    opts: ['Data Management Access','Direct Memory Access','Dynamic Mapped Address','Discrete Module Arbitration'],
+    ans: 1
+  },
+  {
+    q: 'Which sleep mode on STM32L4 consumes approximately 1 µA while retaining SRAM?',
+    opts: ['Standby','STOP1','STOP2','Run (LP)'],
+    ans: 2
+  },
+  {
+    q: 'What is "bit-banging" in embedded systems?',
+    opts: [
+      'A hardware fault recovery procedure',
+      'Implementing a serial protocol in software by toggling GPIO pins manually',
+      'A DMA burst transfer technique',
+      'Overclocking the CPU using a register write'
+    ],
+    ans: 1
+  },
+  {
+    q: 'CAN bus uses which physical layer?',
+    opts: ['Single-ended TTL','Differential pair (CANH/CANL)','Open-drain I²C','Optocoupler isolation'],
+    ans: 1
+  },
+  {
+    q: 'Harvard architecture differs from von Neumann because it:',
+    opts: [
+      'Uses a 64-bit data bus',
+      'Requires an external RAM chip',
+      'Has separate buses for instruction and data memory',
+      'Runs at a fixed 1 MHz clock'
+    ],
+    ans: 2
+  },
+];
+
+let qIdx = 0, score = 0;
+
+function loadQuestion() {
+  const q = quizData[qIdx];
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-progress').textContent = `Question ${qIdx + 1} / ${quizData.length}`;
+  document.getElementById('q-score').textContent = `Score: ${score}`;
+  const optsEl = document.getElementById('q-options');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => handleAnswer(i, btn, q.ans);
+    optsEl.appendChild(btn);
+  });
+}
+
+function handleAnswer(selected, btn, correct) {
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.add('disabled'));
+  if (selected === correct) {
+    btn.classList.add('correct');
+    score++;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
+  }
+  document.getElementById('q-score').textContent = `Score: ${score}`;
+  qIdx++;
+  if (qIdx < quizData.length) {
+    setTimeout(loadQuestion, 1200);
+  } else {
+    setTimeout(showResult, 1200);
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-question-area').style.display = 'none';
+  const res = document.getElementById('quiz-result');
+  res.style.display = 'block';
+  const pct = (score / quizData.length) * 100;
+  document.getElementById('result-emoji').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
+  document.getElementById('result-title').textContent =
+    pct >= 80 ? 'Expert Level!' : pct >= 50 ? 'Good Job!' : 'Keep Learning!';
+  document.getElementById('result-desc').textContent =
+    `You scored ${score} out of ${quizData.length} (${pct}%). ` +
+    (pct >= 80 ? 'Outstanding embedded systems knowledge!' :
+     pct >= 50 ? 'Solid understanding — review the weak spots above.' :
+     'Revisit the concepts and code examples, then try again.');
+}
+
+function resetQuiz() {
+  qIdx = 0; score = 0;
+  document.getElementById('quiz-question-area').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+
+loadQuestion();
+
+/* ─── Glossary data ─────────────────────────────────────────── */
+const glossary = [
+  { term: 'ADC',        def: 'Analogue-to-Digital Converter. Samples a continuous voltage and outputs a digital number proportional to the input.' },
+  { term: 'AHB',        def: 'Advanced High-performance Bus. The primary system bus in ARM-based SoCs, carrying data between CPU, DMA, and fast peripherals.' },
+  { term: 'APB',        def: 'Advanced Peripheral Bus. A lower-speed bus branching off AHB, connecting slow peripherals like UART, I²C, SPI.' },
+  { term: 'Bare Metal', def: 'Programming an MCU without an OS. The application runs directly on the hardware, giving full determinism and minimal overhead.' },
+  { term: 'Bitfield',   def: 'A struct member packed into a subset of bits within a word, used to efficiently map hardware registers in embedded C.' },
+  { term: 'Bootloader', def: 'Firmware that runs before the application, validates its integrity, and can update it over serial, USB, or wireless interfaces.' },
+  { term: 'BSS',        def: 'Block Started by Symbol. The memory segment for zero-initialised global and static variables, cleared at startup.' },
+  { term: 'CAN',        def: 'Controller Area Network. A robust differential bus for automotive and industrial systems supporting multi-master and error detection.' },
+  { term: 'CMSIS',      def: 'Cortex Microcontroller Software Interface Standard. ARM\'s HAL API for Cortex-M cores, ensuring portability across vendors.' },
+  { term: 'DAC',        def: 'Digital-to-Analogue Converter. Converts a digital value to a proportional analogue voltage, used for audio and signal generation.' },
+  { term: 'DMA',        def: 'Direct Memory Access. Transfers data between memory and peripherals autonomously, freeing the CPU for other tasks.' },
+  { term: 'EEPROM',     def: 'Electrically Erasable Programmable ROM. Non-volatile byte-addressable storage for configuration data and calibration values.' },
+  { term: 'EXTI',       def: 'External Interrupt / Event Controller. Routes GPIO signals to the NVIC, allowing edge-triggered or level-triggered interrupts.' },
+  { term: 'FPU',        def: 'Floating-Point Unit. A hardware accelerator for IEEE 754 single- and double-precision arithmetic, standard on Cortex-M4/M7.' },
+  { term: 'GPIO',       def: 'General-Purpose Input/Output. Configurable digital pins that can read or drive logic levels, or be muxed to peripheral functions.' },
+  { term: 'HAL',        def: 'Hardware Abstraction Layer. A portable API wrapping MCU-specific register operations, enabling code reuse across hardware.' },
+  { term: 'I²C',        def: 'Inter-Integrated Circuit. A 2-wire synchronous multi-master bus supporting up to 127 7-bit slave addresses on a single bus.' },
+  { term: 'ISR',        def: 'Interrupt Service Routine. The function invoked when an interrupt fires. Must be short, fast, and avoid blocking calls.' },
+  { term: 'JTAG',       def: 'Joint Test Action Group. A debug/test interface (TCK/TMS/TDI/TDO) for boundary scan, flash programming, and live debugging.' },
+  { term: 'Linker Script', def: 'A file that tells the linker how to map code and data sections (.text, .data, .bss) to specific memory regions of the MCU.' },
+  { term: 'MPU',        def: 'Memory Protection Unit. Enforces read/write/execute permissions on memory regions, preventing stack overflows from corrupting other data.' },
+  { term: 'NVIC',       def: 'Nested Vectored Interrupt Controller. ARM\'s interrupt controller supporting up to 240 external interrupts with configurable priorities.' },
+  { term: 'PWM',        def: 'Pulse Width Modulation. A digital signal with variable duty cycle used to control motors, LEDs, and servos with analogue precision.' },
+  { term: 'RTOS',       def: 'Real-Time Operating System. An OS guaranteeing deterministic response times. Examples: FreeRTOS, Zephyr, ThreadX, RTEMS.' },
+  { term: 'SPI',        def: 'Serial Peripheral Interface. A synchronous full-duplex master-slave protocol using SCK, MOSI, MISO, and CS lines.' },
+  { term: 'SWD',        def: 'Serial Wire Debug. A 2-pin (SWDIO + SWCLK) ARM debug interface, more pin-efficient than 4-wire JTAG.' },
+  { term: 'UART',       def: 'Universal Asynchronous Receiver-Transmitter. An asynchronous serial protocol transmitting data at a pre-agreed baud rate.' },
+  { term: 'Volatile',   def: 'A C keyword telling the compiler not to cache the variable in a register, required for variables shared between ISRs and main code.' },
+  { term: 'WDT',        def: 'Watchdog Timer. A countdown timer that resets the MCU if not periodically refreshed, protecting against software hangs.' },
+  { term: 'Zero-copy',  def: 'A technique where data is never copied between buffers — usually via DMA or shared memory — maximising throughput.' },
+];
+
+const glossGrid = document.getElementById('gloss-grid');
+glossary.forEach(g => {
+  const div = document.createElement('div');
+  div.className = 'gloss-card';
+  div.dataset.term = g.term.toLowerCase();
+  div.innerHTML = `<div class="gloss-term">${g.term}</div><div class="gloss-def">${g.def}</div>`;
+  glossGrid.appendChild(div);
+});
+
+document.getElementById('gloss-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.gloss-card').forEach(card => {
+    const match = card.dataset.term.includes(q) ||
+                  card.querySelector('.gloss-def').textContent.toLowerCase().includes(q);
+    card.classList.toggle('hidden', !match);
+  });
+});
+</script>
+</body>
+</html>
