@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino Basics - Bitronix Lab</title>
+    <link rel="stylesheet" href="../css/tutorial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-progress" data-page-progress></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="nav-logo-mark">
+                    <img src="../Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+                </span>
+                <span>Bitronix Lab</span>
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="../index.html">Home</a> / <span>Arduino Basics</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="tutorial-hero">
+        <div class="tutorial-hero-inner">
+            <div>
+                <p class="eyebrow">Bitronix Lab Learning</p>
+                <h1>Arduino Basics</h1>
+                <p>Start with the fundamentals, understand the circuit, and build confidence with real hardware.</p>
+            </div>
+            <div class="tutorial-mission-card">
+                <img src="../Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+                <span>Innovating ideas, empowering future</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutorial Content -->
+    <div class="tutorial-container">
+        <aside class="tutorial-sidebar">
+            <div class="tutorial-nav">
+                <h3>Tutorial Chapters</h3>
+                <ul>
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#hardware">Hardware Setup</a></li>
+                    <li><a href="#software">Software Installation</a></li>
+                    <li><a href="#basics">Programming Basics</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#resources">Resources</a></li>
+                </ul>
+            </div>
+            <div class="other-tutorials">
+                <h3>Other Tutorials</h3>
+                <a href="weather-station.html">Weather Station -></a>
+                <a href="../index.html#learning">Training tracks -></a>
+            </div>
+        </aside>
+
+        <main class="tutorial-content">
+            <article>
+                <h1>Arduino Basics: Your Gateway to Microcontrollers</h1>
+                <div class="article-meta">
+                    <span><i class="fas fa-clock"></i> 30 min read</span>
+                    <span><i class="fas fa-chart-line"></i> Beginner</span>
+                    <span><i class="fas fa-calendar"></i> 2026</span>
+                </div>
+
+                <section id="introduction">
+                    <h2>Introduction</h2>
+                    <p>Arduino is an open-source electronics platform based on easy-to-use hardware and software. It's perfect for anyone interested in creating interactive objects or environments. In this tutorial, we'll explore the fundamentals of Arduino and build your first project.</p>
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>What is Arduino?</strong> Arduino is a microcontroller platform that allows you to read inputs and control outputs, making it ideal for automation and IoT projects.</p>
+                    </div>
+                </section>
+
+                <section id="hardware">
+                    <h2>Hardware Setup</h2>
+                    <h3>Components You'll Need:</h3>
+                    <ul class="components-list">
+                        <li><strong>Arduino Board</strong> (Uno, Nano, or Mega)</li>
+                        <li><strong>USB Cable</strong> (for programming and power)</li>
+                        <li><strong>Breadboard</strong> (for circuit prototyping)</li>
+                        <li><strong>Jumper Wires</strong> (male and female)</li>
+                        <li><strong>LED</strong> (5mm, any color)</li>
+                        <li><strong>Resistor</strong> (220 ohm or 1k ohm)</li>
+                        <li><strong>Push Button</strong> (momentary switch)</li>
+                        <li><strong>Power Supply</strong> (optional, for standalone operation)</li>
+                    </ul>
+
+                    <h3>First Connection:</h3>
+                    <div class="code-block">
+<pre><code>Step 1: Connect Arduino to Computer via USB
+Step 2: Open Arduino IDE
+Step 3: Select Board: Tools > Board > Arduino Uno
+Step 4: Select Port: Tools > Port > COM# (Windows) or /dev/ttyUSB# (Linux)
+Step 5: Upload the example Blink sketch</code></pre>
+                    </div>
+                </section>
+
+                <section id="software">
+                    <h2>Software Installation</h2>
+                    <h3>Installing Arduino IDE:</h3>
+                    <ol>
+                        <li>Visit <strong>arduino.cc</strong> and download Arduino IDE</li>
+                        <li>Install for your operating system (Windows, Mac, Linux)</li>
+                        <li>Launch Arduino IDE</li>
+                        <li>Connect your Arduino board</li>
+                        <li>Install the board package if prompted</li>
+                    </ol>
+
+                    <h3>Alternative: Arduino Web Editor</h3>
+                    <p>You can also use the web-based editor at <strong>create.arduino.cc</strong> which requires an Arduino account.</p>
+
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Important:</strong> Install the correct driver for your board type and ensure USB drivers are properly installed on Windows.</p>
+                    </div>
+                </section>
+
+                <section id="basics">
+                    <h2>Programming Basics</h2>
+                    <h3>Arduino Sketch Structure:</h3>
+                    <div class="code-block">
+<pre><code class="language-cpp">// This function runs once when the Arduino powers on
+void setup() {
+  // Initialize serial communication at 9600 baud
+  Serial.begin(9600);
+  
+  // Set pin 13 as an output
+  pinMode(13, OUTPUT);
+}
+
+// This function runs repeatedly
+void loop() {
+  // Turn LED on
+  digitalWrite(13, HIGH);
+  
+  // Wait 1000 milliseconds (1 second)
+  delay(1000);
+  
+  // Turn LED off
+  digitalWrite(13, LOW);
+  
+  // Wait 1000 milliseconds
+  delay(1000);
+  
+  // Print to serial monitor
+  Serial.println("LED blinked!");
+}</code></pre>
+                    </div>
+
+                    <h3>Key Functions:</h3>
+                    <table class="functions-table">
+                        <tr>
+                            <th>Function</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>pinMode(pin, mode)</code></td>
+                            <td>Set pin as INPUT or OUTPUT</td>
+                        </tr>
+                        <tr>
+                            <td><code>digitalWrite(pin, value)</code></td>
+                            <td>Write HIGH or LOW to a digital pin</td>
+                        </tr>
+                        <tr>
+                            <td><code>digitalRead(pin)</code></td>
+                            <td>Read HIGH or LOW from a digital pin</td>
+                        </tr>
+                        <tr>
+                            <td><code>analogWrite(pin, value)</code></td>
+                            <td>Write PWM value (0-255) to analog pin</td>
+                        </tr>
+                        <tr>
+                            <td><code>analogRead(pin)</code></td>
+                            <td>Read analog value (0-1023) from analog pin</td>
+                        </tr>
+                        <tr>
+                            <td><code>delay(ms)</code></td>
+                            <td>Pause execution for specified milliseconds</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="projects">
+                    <h2>Project: Traffic Light System</h2>
+                    <h3>Overview:</h3>
+                    <p>Build a simple traffic light system using three LEDs (red, yellow, green) controlled by your Arduino.</p>
+
+                    <h3>Circuit Diagram:</h3>
+                    <div class="circuit-diagram">
+                        <p>LED 1 (Red) -> Pin 8</p>
+                        <p>LED 2 (Yellow) -> Pin 9</p>
+                        <p>LED 3 (Green) -> Pin 10</p>
+                        <p>All GND pins -> GND</p>
+                    </div>
+
+                    <h3>Complete Code:</h3>
+                    <div class="code-block">
+<pre><code class="language-cpp">// Define pin numbers
+#define RED_LED 8
+#define YELLOW_LED 9
+#define GREEN_LED 10
+
+void setup() {
+  pinMode(RED_LED, OUTPUT);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Red light - Stop
+  Serial.println("RED: Stop!");
+  digitalWrite(RED_LED, HIGH);
+  delay(3000);
+  digitalWrite(RED_LED, LOW);
+  
+  // Yellow light - Get Ready
+  Serial.println("YELLOW: Get Ready!");
+  digitalWrite(YELLOW_LED, HIGH);
+  delay(1000);
+  digitalWrite(YELLOW_LED, LOW);
+  
+  // Green light - Go
+  Serial.println("GREEN: Go!");
+  digitalWrite(GREEN_LED, HIGH);
+  delay(3000);
+  digitalWrite(GREEN_LED, LOW);
+}</code></pre>
+                    </div>
+
+                    <h3>Testing:</h3>
+                    <ol>
+                        <li>Upload the sketch to your Arduino</li>
+                        <li>Watch the LEDs cycle through red, yellow, and green</li>
+                        <li>Open Serial Monitor (Tools > Serial Monitor) to see messages</li>
+                        <li>Experiment with timing values</li>
+                    </ol>
+                </section>
+
+                <section id="resources">
+                    <h2>Resources & Further Learning</h2>
+                    <h3>Official Documentation:</h3>
+                    <ul>
+                        <li><a href="#">Arduino Official Website</a></li>
+                        <li><a href="#">Arduino Language Reference</a></li>
+                        <li><a href="#">Getting Started with Arduino</a></li>
+                    </ul>
+
+                    <h3>Popular Boards to Explore:</h3>
+                    <ul>
+                        <li><strong>Arduino Uno</strong> - Most popular, great for beginners</li>
+                        <li><strong>Arduino Nano</strong> - Compact version</li>
+                        <li><strong>Arduino Mega 2560</strong> - More pins and memory</li>
+                        <li><strong>Arduino MKR WiFi 1010</strong> - WiFi connectivity</li>
+                    </ul>
+
+                    <h3>Next Steps:</h3>
+                    <ul>
+                        <li>Build sensor projects (temperature, light, motion)</li>
+                        <li>Create IoT applications</li>
+                        <li>Integrate with other platforms (Raspberry Pi, ESP32)</li>
+                        <li>Learn advanced topics like interrupts and PWM</li>
+                    </ul>
+
+                    <div class="success-box">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Congratulations!</strong> You've learned the basics of Arduino programming. Now it's time to build amazing projects!</p>
+                    </div>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Bitronix Lab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>

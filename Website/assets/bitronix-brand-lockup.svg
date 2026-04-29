@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" role="img" aria-labelledby="title desc">
+  <title id="title">Bitronix Lab brand lockup</title>
+  <desc id="desc">Neon Bitronix Lab monogram with innovate, design, develop, educate pillars.</desc>
+  <defs>
+    <linearGradient id="steel" x1="220" y1="100" x2="920" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.18" stop-color="#9ca7b4"/>
+      <stop offset="0.42" stop-color="#f6fbff"/>
+      <stop offset="0.66" stop-color="#687482"/>
+      <stop offset="1" stop-color="#f7fcff"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="160" y1="580" x2="930" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00f5ff"/>
+      <stop offset="0.46" stop-color="#0577ff"/>
+      <stop offset="1" stop-color="#5ffcff"/>
+    </linearGradient>
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="54%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.24" stop-color="#55faff"/>
+      <stop offset="0.68" stop-color="#0577ff"/>
+      <stop offset="1" stop-color="#001424" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.02 0 0 0 0 0.68 0 0 0 0 1 0 0 0 0.9 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .trace {
+        stroke-dasharray: 120;
+        animation: traceFlow 4.4s linear infinite;
+      }
+      .spark {
+        animation: nodePulse 2.6s ease-in-out infinite;
+        transform-origin: center;
+      }
+      .shine {
+        animation: edgeGlow 3.8s ease-in-out infinite;
+      }
+      .pillar {
+        animation: pillarLift 5.2s ease-in-out infinite;
+        transform-origin: center;
+      }
+      .pillar:nth-of-type(2) { animation-delay: .35s; }
+      .pillar:nth-of-type(3) { animation-delay: .7s; }
+      .pillar:nth-of-type(4) { animation-delay: 1.05s; }
+      @keyframes traceFlow {
+        to { stroke-dashoffset: -240; }
+      }
+      @keyframes nodePulse {
+        0%, 100% { opacity: .64; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.18); }
+      }
+      @keyframes edgeGlow {
+        0%, 100% { opacity: .82; }
+        50% { opacity: 1; }
+      }
+      @keyframes pillarLift {
+        0%, 100% { transform: translateY(0); opacity: .84; }
+        50% { transform: translateY(-8px); opacity: 1; }
+      }
+    </style>
+  </defs>
+
+  <rect width="1200" height="920" rx="54" fill="#020407"/>
+  <path d="M86 642H1114" stroke="#063b61" stroke-width="2"/>
+  <path d="M96 654H1104" stroke="url(#neon)" stroke-width="4" filter="url(#glow)"/>
+  <circle class="spark" cx="600" cy="654" r="7" fill="url(#nodeGlow)" filter="url(#glow)"/>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path class="trace" d="M84 258H186L244 316H370" stroke="#00f5ff" stroke-width="4"/>
+    <path class="trace" d="M112 318H238L296 376H442" stroke="#0577ff" stroke-width="3"/>
+    <path class="trace" d="M68 382H220L296 448H460" stroke="#00f5ff" stroke-width="4"/>
+    <path class="trace" d="M112 468H234L310 394H470" stroke="#0577ff" stroke-width="3"/>
+    <path class="trace" d="M154 542H280L356 468H492" stroke="#00f5ff" stroke-width="4"/>
+    <path class="trace" d="M504 240H666L720 198H822" stroke="#00f5ff" stroke-width="3"/>
+    <path class="trace" d="M508 304H712L778 250H912" stroke="#0577ff" stroke-width="3"/>
+    <path class="trace" d="M496 444H704L780 506H978" stroke="#00f5ff" stroke-width="3"/>
+    <path class="trace" d="M524 514H690L764 568H922" stroke="#0577ff" stroke-width="3"/>
+  </g>
+
+  <g fill="#05101c" stroke="#00f5ff" stroke-width="4" filter="url(#glow)">
+    <circle class="spark" cx="84" cy="258" r="10"/>
+    <circle class="spark" cx="68" cy="382" r="10"/>
+    <circle class="spark" cx="112" cy="468" r="9"/>
+    <circle class="spark" cx="154" cy="542" r="9"/>
+    <circle class="spark" cx="912" cy="250" r="7"/>
+    <circle class="spark" cx="978" cy="506" r="7"/>
+  </g>
+
+  <path d="M376 84L512 214V530L376 660H766C860 660 930 598 930 512C930 448 894 398 834 370C884 338 910 292 910 232C910 146 842 84 732 84H376Z" fill="#07111d"/>
+  <path d="M434 142H726C798 142 846 180 846 236C846 294 798 330 726 330H610V406H778C838 406 878 442 878 510C878 568 832 602 762 602H434V142Z" fill="url(#steel)"/>
+  <path class="shine" d="M376 84L512 214V530L376 660" fill="none" stroke="url(#neon)" stroke-width="14" stroke-linejoin="round" filter="url(#glow)"/>
+  <path class="shine" d="M434 142H726C798 142 846 180 846 236C846 294 798 330 726 330H610M610 406H778C838 406 878 442 878 510C878 568 832 602 762 602H434" fill="none" stroke="url(#neon)" stroke-width="6" filter="url(#glow)"/>
+
+  <g filter="url(#glow)">
+    <rect x="658" y="444" width="92" height="92" rx="14" fill="#07111d" stroke="#a9fbff" stroke-width="4"/>
+    <rect x="680" y="466" width="48" height="48" rx="7" fill="url(#nodeGlow)"/>
+    <path d="M704 406V444M704 536V574M620 490H658M750 490H792M652 438L620 406M756 438L792 402M652 542L620 574M756 542L792 578" stroke="#00f5ff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <text x="86" y="760" fill="#eaf7ff" font-size="72" font-family="Arial, Helvetica, sans-serif" font-weight="700" letter-spacing="34">BITRONIX</text>
+  <text x="840" y="760" fill="#33eaff" font-size="72" font-family="Arial, Helvetica, sans-serif" font-weight="700" letter-spacing="24">LAB</text>
+
+  <g fill="none" stroke="url(#neon)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <g class="pillar">
+      <path d="M150 826C150 798 172 778 198 778C224 778 246 798 246 826C246 844 235 858 224 868V886H172V868C160 858 150 844 150 826Z"/>
+      <path d="M180 812L196 802L212 812V832L196 842L180 832Z"/>
+      <path d="M196 764V746M150 780L136 766M242 780L256 766M128 828H108M284 828H264"/>
+    </g>
+    <g class="pillar">
+      <path d="M430 874L478 752L526 874H430Z"/>
+      <path d="M478 752V846"/>
+      <circle cx="478" cy="846" r="8"/>
+      <path d="M400 790C430 746 526 746 556 790M400 790V806M556 790V806"/>
+    </g>
+    <g class="pillar">
+      <path d="M726 790L674 842L726 894M814 790L866 842L814 894M780 774L760 910"/>
+    </g>
+    <g class="pillar">
+      <path d="M1002 784L1112 830L1002 876L892 830Z"/>
+      <path d="M934 850V892C980 918 1026 918 1070 892V850M1112 830V890"/>
+    </g>
+  </g>
+  <g fill="#f5fbff" font-size="31" font-family="Arial, Helvetica, sans-serif" font-weight="700" letter-spacing="4">
+    <text x="112" y="910">INNOVATE</text>
+    <text x="398" y="910">DESIGN</text>
+    <text x="684" y="910">DEVELOP</text>
+    <text x="916" y="910">EDUCATE</text>
+  </g>
+</svg>

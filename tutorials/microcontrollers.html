@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microcontrollers - Bitronix Lab</title>
+    <link rel="stylesheet" href="../css/tutorial.css">
+    <link rel="stylesheet" href="../css/extras.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-progress" data-page-progress></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="nav-logo-mark">
+                    <img src="../Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+                </span>
+                <span>Bitronix Lab</span>
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="../index.html">Home</a> /
+                <a href="../index.html#topics">Topics</a> /
+                <span>Microcontrollers</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="tutorial-hero">
+        <div class="tutorial-hero-inner">
+            <div>
+                <p class="eyebrow">Bitronix Lab Topic</p>
+                <h1><span class="gradient-text">Microcontrollers</span></h1>
+                <p>The brain of every embedded system — understand the architecture, peripherals and how to actually pick the right MCU for the job.</p>
+                <div class="topic-hero-tags">
+                    <span>STM32</span><span>ESP32</span><span>RP2040</span><span>AVR</span><span>Cortex-M</span>
+                </div>
+            </div>
+            <div class="tutorial-mission-card">
+                <img src="../Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+                <span>Innovating ideas, empowering future</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="tutorial-container">
+        <aside class="tutorial-sidebar">
+            <div class="tutorial-nav">
+                <h3>On this page</h3>
+                <ul>
+                    <li><a href="#what">What is a microcontroller?</a></li>
+                    <li><a href="#architecture">Inside the chip</a></li>
+                    <li><a href="#families">MCU families</a></li>
+                    <li><a href="#peripherals">Peripherals</a></li>
+                    <li><a href="#choosing">Choosing an MCU</a></li>
+                    <li><a href="#first-program">Your first program</a></li>
+                    <li><a href="#next">Next steps</a></li>
+                </ul>
+            </div>
+            <div class="other-tutorials">
+                <h3>Related topics</h3>
+                <a href="embedded-c.html">Embedded C →</a>
+                <a href="embedded-rtos.html">Embedded RTOS →</a>
+                <a href="arduino-basics.html">Arduino Basics →</a>
+                <a href="weather-station.html">Weather Station →</a>
+            </div>
+        </aside>
+
+        <main class="tutorial-content">
+            <article>
+                <h1>Microcontrollers: The Heart of Embedded Systems</h1>
+                <div class="article-meta">
+                    <span><i class="fas fa-clock"></i> 25 min read</span>
+                    <span><i class="fas fa-chart-line"></i> Beginner → Intermediate</span>
+                    <span><i class="fas fa-microchip"></i> Hardware</span>
+                </div>
+
+                <section id="what">
+                    <h2>What is a microcontroller?</h2>
+                    <p>A microcontroller (MCU) is a single integrated circuit that combines a CPU, memory (Flash + RAM) and a set of peripherals on the same die. Unlike a general-purpose CPU, an MCU is designed to run a single dedicated program forever, talking to the physical world through its pins.</p>
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>In short:</strong> MCU = tiny computer + I/O, built to control hardware in real-time with very little power.</p>
+                    </div>
+                </section>
+
+                <section id="architecture">
+                    <h2>Inside the chip</h2>
+                    <p>Every modern microcontroller is built from a few essential blocks:</p>
+                    <ul class="components-list">
+                        <li><strong>CPU core</strong> — typically ARM Cortex-M, RISC-V, AVR or Xtensa.</li>
+                        <li><strong>Flash memory</strong> — non-volatile storage for your program (KB to MB).</li>
+                        <li><strong>SRAM</strong> — fast volatile memory for variables and the stack.</li>
+                        <li><strong>Peripherals</strong> — GPIO, timers, ADC, DAC, UART, SPI, I2C, USB, CAN.</li>
+                        <li><strong>Clock + power</strong> — oscillators, PLLs, voltage regulators, sleep modes.</li>
+                        <li><strong>Interrupt controller</strong> — lets hardware events preempt your code.</li>
+                    </ul>
+                </section>
+
+                <section id="families">
+                    <h2>MCU families you should know</h2>
+                    <table class="functions-table">
+                        <tr>
+                            <th>Family</th><th>Vendor</th><th>Core</th><th>Best for</th>
+                        </tr>
+                        <tr>
+                            <td>AVR (ATmega, ATtiny)</td><td>Microchip</td><td>8-bit AVR</td><td>Learning, Arduino, low cost</td>
+                        </tr>
+                        <tr>
+                            <td>STM32</td><td>STMicroelectronics</td><td>ARM Cortex-M0/M3/M4/M7</td><td>Industrial, motor control, general firmware</td>
+                        </tr>
+                        <tr>
+                            <td>ESP32 / ESP32-S3</td><td>Espressif</td><td>Xtensa / RISC-V + Wi-Fi/BT</td><td>IoT, wireless, edge AI</td>
+                        </tr>
+                        <tr>
+                            <td>RP2040</td><td>Raspberry Pi</td><td>Dual Cortex-M0+</td><td>Hobby, education, PIO state machines</td>
+                        </tr>
+                        <tr>
+                            <td>nRF52 / nRF53</td><td>Nordic</td><td>Cortex-M4 + BLE</td><td>Wearables, low-power BLE</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="peripherals">
+                    <h2>Peripherals — talking to the real world</h2>
+                    <h3>Digital I/O (GPIO)</h3>
+                    <p>Each pin can be configured as input or output, HIGH or LOW. Used for LEDs, buttons, relays, and bit-banged protocols.</p>
+                    <h3>Analog (ADC / DAC)</h3>
+                    <p>The ADC samples a continuous voltage into a digital value (e.g. 0–4095 on a 12-bit ADC). Used for sensors, audio, and measurements.</p>
+                    <h3>Communication buses</h3>
+                    <ul class="components-list">
+                        <li><strong>UART</strong> — simple async serial, perfect for debug logs and modems.</li>
+                        <li><strong>I2C</strong> — 2-wire bus for sensors, EEPROMs and small displays.</li>
+                        <li><strong>SPI</strong> — fast 4-wire bus for flash, displays and ADCs.</li>
+                        <li><strong>CAN</strong> — robust automotive / industrial bus.</li>
+                        <li><strong>USB / Ethernet / Wi-Fi / BLE</strong> — connectivity to the outside world.</li>
+                    </ul>
+                </section>
+
+                <section id="choosing">
+                    <h2>Choosing the right microcontroller</h2>
+                    <p>Ask these questions before you commit to a part:</p>
+                    <ol>
+                        <li><strong>Power budget</strong> — battery life or always-on?</li>
+                        <li><strong>Performance</strong> — clock speed, FPU, DSP, AI accelerators?</li>
+                        <li><strong>Connectivity</strong> — Wi-Fi, BLE, Ethernet, LoRa, none?</li>
+                        <li><strong>Memory</strong> — does your firmware fit? Plus 30% headroom.</li>
+                        <li><strong>Toolchain</strong> — IDE, debugger, HAL quality, community.</li>
+                        <li><strong>Availability + lifecycle</strong> — can you buy 10k of them in 5 years?</li>
+                    </ol>
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Pro tip:</strong> Always pick a part that has a sibling family. If the small one runs out of pins or RAM, you can move up without rewriting everything.</p>
+                    </div>
+                </section>
+
+                <section id="first-program">
+                    <h2>Your first bare-metal program</h2>
+                    <p>Here is the canonical "blink an LED on PA5 of an STM32" — written in plain register-level C:</p>
+                    <div class="code-block">
+<pre><code class="language-c">#include &lt;stdint.h&gt;
+
+#define RCC_AHB1ENR  (*(volatile uint32_t *)0x40023830U)
+#define GPIOA_MODER  (*(volatile uint32_t *)0x40020000U)
+#define GPIOA_ODR    (*(volatile uint32_t *)0x40020014U)
+
+int main(void) {
+    RCC_AHB1ENR |= (1U &lt;&lt; 0);          // enable GPIOA clock
+    GPIOA_MODER &amp;= ~(3U &lt;&lt; (5 * 2));   // clear mode bits for PA5
+    GPIOA_MODER |=  (1U &lt;&lt; (5 * 2));   // set PA5 as output
+
+    while (1) {
+        GPIOA_ODR ^= (1U &lt;&lt; 5);        // toggle PA5
+        for (volatile int i = 0; i &lt; 400000; i++) { } // crude delay
+    }
+}
+</code></pre>
+                    </div>
+                    <div class="success-box">
+                        <i class="fas fa-check-circle"></i>
+                        <p>If that LED blinks, you have officially written firmware. Welcome to embedded.</p>
+                    </div>
+                </section>
+
+                <section id="next">
+                    <h2>Where to go next</h2>
+                    <p>Now that you understand the chip, learn the language and the operating system that drive it:</p>
+                    <ul class="components-list">
+                        <li><a href="embedded-c.html"><strong>Embedded C</strong></a> — pointers, registers, drivers and bit manipulation.</li>
+                        <li><a href="embedded-rtos.html"><strong>Embedded RTOS</strong></a> — multi-tasking firmware with FreeRTOS.</li>
+                        <li><a href="arduino-basics.html"><strong>Arduino Basics</strong></a> — the gentlest starting point.</li>
+                        <li><a href="weather-station.html"><strong>IoT Weather Station</strong></a> — put it all together.</li>
+                    </ul>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Bitronix Lab — Innovating ideas, empowering future.</p>
+        </div>
+    </footer>
+
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>

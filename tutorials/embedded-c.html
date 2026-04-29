@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded C - Bitronix Lab</title>
+    <link rel="stylesheet" href="../css/tutorial.css">
+    <link rel="stylesheet" href="../css/extras.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-progress" data-page-progress></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="nav-logo-mark">
+                    <img src="../Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+                </span>
+                <span>Bitronix Lab</span>
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="../index.html">Home</a> /
+                <a href="../index.html#topics">Topics</a> /
+                <span>Embedded C</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="tutorial-hero">
+        <div class="tutorial-hero-inner">
+            <div>
+                <p class="eyebrow">Bitronix Lab Topic</p>
+                <h1><span class="gradient-text">Embedded C</span></h1>
+                <p>The language of firmware. Learn the patterns, pitfalls and idioms that turn standard C into reliable, deterministic embedded code.</p>
+                <div class="topic-hero-tags">
+                    <span>Pointers</span><span>Registers</span><span>volatile</span><span>Bit-fields</span><span>Drivers</span>
+                </div>
+            </div>
+            <div class="tutorial-mission-card">
+                <img src="../Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+                <span>Innovating ideas, empowering future</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="tutorial-container">
+        <aside class="tutorial-sidebar">
+            <div class="tutorial-nav">
+                <h3>On this page</h3>
+                <ul>
+                    <li><a href="#why">Why C still rules embedded</a></li>
+                    <li><a href="#types">Types &amp; <code>stdint.h</code></a></li>
+                    <li><a href="#bits">Bit manipulation</a></li>
+                    <li><a href="#volatile">volatile &amp; memory-mapped I/O</a></li>
+                    <li><a href="#memory">Memory model</a></li>
+                    <li><a href="#patterns">Embedded patterns</a></li>
+                    <li><a href="#pitfalls">Common pitfalls</a></li>
+                </ul>
+            </div>
+            <div class="other-tutorials">
+                <h3>Related topics</h3>
+                <a href="microcontrollers.html">Microcontrollers →</a>
+                <a href="embedded-rtos.html">Embedded RTOS →</a>
+                <a href="arduino-basics.html">Arduino Basics →</a>
+            </div>
+        </aside>
+
+        <main class="tutorial-content">
+            <article>
+                <h1>Embedded C: Writing Firmware That Lasts</h1>
+                <div class="article-meta">
+                    <span><i class="fas fa-clock"></i> 35 min read</span>
+                    <span><i class="fas fa-chart-line"></i> Intermediate</span>
+                    <span><i class="fas fa-code"></i> Language</span>
+                </div>
+
+                <section id="why">
+                    <h2>Why C still rules embedded</h2>
+                    <p>C gives you direct access to memory, near-zero runtime overhead and predictable timing. There is no garbage collector that can pause you mid-ISR, no hidden allocations, and the generated assembly looks roughly like the source. That is exactly what you want when a watchdog is breathing down your neck.</p>
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Embedded C ≠ standard C.</strong> Same syntax, very different mindset: every byte matters and every cycle is visible.</p>
+                    </div>
+                </section>
+
+                <section id="types">
+                    <h2>Types &amp; <code>stdint.h</code></h2>
+                    <p>Never use plain <code>int</code> or <code>long</code> in firmware — their sizes change between platforms. Always use the fixed-width types from <code>&lt;stdint.h&gt;</code>:</p>
+                    <div class="code-block">
+<pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+uint8_t   counter   = 0;       // 0..255
+int16_t   temp_x10  = -125;    // -32k..32k, °C * 10
+uint32_t  ticks_ms  = 0;
+bool      ready     = false;
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="bits">
+                    <h2>Bit manipulation</h2>
+                    <p>You will spend more time twiddling bits than anything else. Memorize these four patterns:</p>
+                    <div class="code-block">
+<pre><code class="language-c">/* Set bit n */
+reg |=  (1U &lt;&lt; n);
+
+/* Clear bit n */
+reg &amp;= ~(1U &lt;&lt; n);
+
+/* Toggle bit n */
+reg ^=  (1U &lt;&lt; n);
+
+/* Check bit n */
+if (reg &amp; (1U &lt;&lt; n)) { /* it is set */ }
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="volatile">
+                    <h2><code>volatile</code> &amp; memory-mapped I/O</h2>
+                    <p>Hardware registers and variables shared with ISRs <em>must</em> be declared <code>volatile</code>, otherwise the compiler will happily optimize your code into something that does not work.</p>
+                    <div class="code-block">
+<pre><code class="language-c">/* Memory-mapped GPIO register */
+#define GPIOA_ODR  (*(volatile uint32_t *)0x40020014U)
+
+/* Shared with ISR */
+volatile uint32_t systick_ms = 0;
+
+void SysTick_Handler(void) {
+    systick_ms++;          // updated in interrupt
+}
+
+void delay_ms(uint32_t ms) {
+    uint32_t start = systick_ms;
+    while ((systick_ms - start) &lt; ms) { }
+}
+</code></pre>
+                    </div>
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Forget <code>volatile</code> on a shared variable</strong> and your program may work in debug, then mysteriously freeze in release. This is the #1 firmware bug.</p>
+                    </div>
+                </section>
+
+                <section id="memory">
+                    <h2>The embedded memory model</h2>
+                    <p>An MCU binary lives in a few sections defined by the linker script:</p>
+                    <ul class="components-list">
+                        <li><strong>.text</strong> — code, in Flash.</li>
+                        <li><strong>.rodata</strong> — constants (<code>const</code>), in Flash.</li>
+                        <li><strong>.data</strong> — initialized globals, copied from Flash → RAM at boot.</li>
+                        <li><strong>.bss</strong> — zero-initialized globals, in RAM.</li>
+                        <li><strong>Stack</strong> — function calls, local variables.</li>
+                        <li><strong>Heap</strong> — dynamic allocation. <em>Usually avoided.</em></li>
+                    </ul>
+                    <p>Most production firmware avoids <code>malloc()</code> entirely — fragmentation in a long-running embedded system is a one-way ticket to a hard fault.</p>
+                </section>
+
+                <section id="patterns">
+                    <h2>Patterns every firmware engineer needs</h2>
+
+                    <h3>1. Finite State Machine</h3>
+                    <div class="code-block">
+<pre><code class="language-c">typedef enum { ST_IDLE, ST_HEATING, ST_HOLD, ST_FAULT } state_t;
+static state_t state = ST_IDLE;
+
+void controller_step(void) {
+    switch (state) {
+        case ST_IDLE:    if (start_pressed())   state = ST_HEATING; break;
+        case ST_HEATING: if (temp_reached())    state = ST_HOLD;    break;
+        case ST_HOLD:    if (stop_pressed())    state = ST_IDLE;    break;
+        case ST_FAULT:   /* require reset */                        break;
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3>2. Lock-free ring buffer</h3>
+                    <div class="code-block">
+<pre><code class="language-c">#define RB_SIZE 64
+static volatile uint8_t  buf[RB_SIZE];
+static volatile uint16_t head = 0, tail = 0;
+
+bool rb_push(uint8_t b) {
+    uint16_t next = (head + 1) % RB_SIZE;
+    if (next == tail) return false;   // full
+    buf[head] = b;
+    head = next;
+    return true;
+}
+
+bool rb_pop(uint8_t *b) {
+    if (head == tail) return false;   // empty
+    *b = buf[tail];
+    tail = (tail + 1) % RB_SIZE;
+    return true;
+}
+</code></pre>
+                    </div>
+
+                    <h3>3. Driver = function table</h3>
+                    <div class="code-block">
+<pre><code class="language-c">typedef struct {
+    int  (*init)(void);
+    int  (*write)(const uint8_t *data, size_t len);
+    int  (*read) (uint8_t *data, size_t len);
+} comm_driver_t;
+
+extern const comm_driver_t uart_driver;
+extern const comm_driver_t usb_driver;
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="pitfalls">
+                    <h2>Common pitfalls</h2>
+                    <ul class="components-list">
+                        <li>Forgetting <code>volatile</code> on ISR-shared variables.</li>
+                        <li>Using <code>float</code>/<code>double</code> on an MCU without an FPU.</li>
+                        <li>Calling <code>printf()</code> from an ISR — never do that.</li>
+                        <li>Stack overflow because of large local arrays — use <code>static</code>.</li>
+                        <li>Implicit integer promotion to <code>int</code> hiding overflow bugs.</li>
+                        <li>Trusting <code>malloc()</code> in a long-running system.</li>
+                    </ul>
+                    <div class="success-box">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Master these and you are 80% of the way to writing professional firmware.</p>
+                    </div>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Bitronix Lab — Innovating ideas, empowering future.</p>
+        </div>
+    </footer>
+
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Station Project - Bitronix Lab</title>
+    <link rel="stylesheet" href="../css/tutorial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-progress" data-page-progress></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="nav-logo-mark">
+                    <img src="../Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+                </span>
+                <span>Bitronix Lab</span>
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="../index.html">Home</a> / <span>Weather Station Project</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="tutorial-hero">
+        <div class="tutorial-hero-inner">
+            <div>
+                <p class="eyebrow">Bitronix Lab Project Lab</p>
+                <h1>Weather Station Project</h1>
+                <p>Build a complete IoT system with sensors, telemetry, cloud storage, and a live dashboard mindset.</p>
+            </div>
+            <div class="tutorial-mission-card">
+                <img src="../Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+                <span>Innovating ideas, empowering future</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutorial Content -->
+    <div class="tutorial-container">
+        <aside class="tutorial-sidebar">
+            <div class="tutorial-nav">
+                <h3>Tutorial Chapters</h3>
+                <ul>
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#overview">System Overview</a></li>
+                    <li><a href="#hardware">Hardware Assembly</a></li>
+                    <li><a href="#firmware">Firmware Development</a></li>
+                    <li><a href="#cloud">Cloud Integration</a></li>
+                    <li><a href="#dashboard">Dashboard & Visualization</a></li>
+                    <li><a href="#deployment">Deployment & Testing</a></li>
+                </ul>
+            </div>
+            <div class="other-tutorials">
+                <h3>Other Tutorials</h3>
+                <a href="arduino-basics.html">Arduino Basics -></a>
+                <a href="../index.html#innovation">Prototype lab -></a>
+            </div>
+        </aside>
+
+        <main class="tutorial-content">
+            <article>
+                <h1>Weather Station: Complete IoT Project</h1>
+                <div class="article-meta">
+                    <span><i class="fas fa-clock"></i> 120 min read</span>
+                    <span><i class="fas fa-chart-line"></i> Advanced</span>
+                    <span><i class="fas fa-calendar"></i> 2026</span>
+                </div>
+
+                <section id="introduction">
+                    <h2>Complete Weather Station Project</h2>
+                    <p>This project combines all the concepts from previous tutorials to build a complete IoT weather station with cloud integration, real-time monitoring, and historical data analysis.</p>
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Project Scope:</strong> Build a weather station that measures temperature, humidity, pressure, and light intensity, stores data in the cloud, and provides real-time visualization through a web dashboard.</p>
+                    </div>
+
+                    <h3>Learning Objectives:</h3>
+                    <ul>
+                        <li>Integrate multiple sensors into a single system</li>
+                        <li>Implement cloud connectivity</li>
+                        <li>Create data visualization dashboards</li>
+                        <li>Handle data storage and retrieval</li>
+                        <li>Deploy production-ready IoT applications</li>
+                    </ul>
+                </section>
+
+                <section id="overview">
+                    <h2>System Architecture Overview</h2>
+                    <h3>Complete System Architecture:</h3>
+                    <div class="circuit-diagram">
+                        <p><strong>Layer 1 (Edge):</strong> ESP32 + Sensors (DHT22, BMP280, LDR)</p>
+                        <p><strong>Layer 2 (Gateway):</strong> WiFi connectivity + MQTT</p>
+                        <p><strong>Layer 3 (Cloud):</strong> InfluxDB (time-series DB) + Node.js API</p>
+                        <p><strong>Layer 4 (Frontend):</strong> React Dashboard + Grafana</p>
+                    </div>
+
+                    <h3>Data Flow:</h3>
+                    <table class="functions-table">
+                        <tr>
+                            <th>Component</th>
+                            <th>Function</th>
+                            <th>Update Rate</th>
+                        </tr>
+                        <tr>
+                            <td>DHT22</td>
+                            <td>Temperature & Humidity</td>
+                            <td>Every 30s</td>
+                        </tr>
+                        <tr>
+                            <td>BMP280</td>
+                            <td>Pressure & Altitude</td>
+                            <td>Every 30s</td>
+                        </tr>
+                        <tr>
+                            <td>LDR</td>
+                            <td>Light Intensity</td>
+                            <td>Every 10s</td>
+                        </tr>
+                        <tr>
+                            <td>InfluxDB</td>
+                            <td>Data Storage</td>
+                            <td>Real-time</td>
+                        </tr>
+                        <tr>
+                            <td>Dashboard</td>
+                            <td>Visualization</td>
+                            <td>WebSocket (live)</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="hardware">
+                    <h2>Hardware Assembly</h2>
+                    <h3>Required Components:</h3>
+                    <ul class="components-list">
+                        <li><strong>ESP32</strong> (main microcontroller)</li>
+                        <li><strong>DHT22</strong> (temperature & humidity)</li>
+                        <li><strong>BMP280</strong> (pressure & altitude)</li>
+                        <li><strong>LDR + 10k ohm resistor</strong> (light sensor)</li>
+                        <li><strong>0.96" OLED Display</strong> (local display)</li>
+                        <li><strong>Solar Panel 5V</strong> (optional, for outdoor use)</li>
+                        <li><strong>18650 Battery</strong> (power backup)</li>
+                        <li><strong>TP4056 Charging Module</strong> (battery charging)</li>
+                        <li><strong>Weatherproof Enclosure</strong> (outdoor housing)</li>
+                    </ul>
+
+                    <h3>Wiring Diagram:</h3>
+                    <div class="circuit-diagram">
+                        <p>ESP32 3.3V -> DHT22 VCC, BMP280 VCC, LDR circuit</p>
+                        <p>ESP32 GPIO 21 (SDA) -> DHT22 Data, BMP280 SDA, OLED SDA</p>
+                        <p>ESP32 GPIO 22 (SCL) -> BMP280 SCL, OLED SCL</p>
+                        <p>ESP32 GPIO 34 (ADC0) -> LDR + 10k divider</p>
+                        <p>All GND pins connected to common ground</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Power Considerations:</strong> When using a battery, ensure proper voltage regulation (min 3V, max 3.6V for ESP32).</p>
+                    </div>
+                </section>
+
+                <section id="firmware">
+                    <h2>ESP32 Firmware Development</h2>
+                    <h3>Complete Arduino Sketch:</h3>
+                    <div class="code-block">
+<pre><code class="language-cpp">#include &lt;WiFi.h&gt;
+#include &lt;PubSubClient.h&gt;
+#include &lt;DHT.h&gt;
+#include &lt;Adafruit_BMP280.h&gt;
+#include &lt;Wire.h&gt;
+
+// WiFi credentials
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+// MQTT Server
+const char* mqtt_server = "192.168.1.100";
+const char* mqtt_user = "weather";
+const char* mqtt_pass = "password123";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+// Sensors
+DHT dht(21, DHT22);
+Adafruit_BMP280 bmp280;
+const int ldrPin = 34;
+
+unsigned long lastSensorRead = 0;
+const long sensorReadInterval = 30000; // 30 seconds
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Initialize sensors
+  dht.begin();
+  if (!bmp280.begin(0x76)) {
+    Serial.println("BMP280 not found!");
+  }
+  
+  // Connect to WiFi
+  connectWiFi();
+  client.setServer(mqtt_server, MQTT_PORT);
+}
+
+void connectWiFi() {
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected!");
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    if (client.connect("WeatherStation", mqtt_user, mqtt_pass)) {
+      Serial.println("MQTT connected");
+    } else {
+      delay(5000);
+    }
+  }
+}
+
+void publishSensorData() {
+  // Read temperature and humidity
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  
+  // Read pressure
+  float pressure = bmp280.readPressure() / 100.0;
+  
+  // Read light intensity
+  int lightRaw = analogRead(ldrPin);
+  float lightPercent = (lightRaw / 4095.0) * 100;
+  
+  // Publish to MQTT
+  char buffer[50];
+  
+  snprintf(buffer, sizeof(buffer), "%.2f", temp);
+  client.publish("weather/temperature", buffer);
+  
+  snprintf(buffer, sizeof(buffer), "%.2f", humidity);
+  client.publish("weather/humidity", buffer);
+  
+  snprintf(buffer, sizeof(buffer), "%.2f", pressure);
+  client.publish("weather/pressure", buffer);
+  
+  snprintf(buffer, sizeof(buffer), "%.1f", lightPercent);
+  client.publish("weather/light", buffer);
+  
+  Serial.printf("T:%.2f H:%.2f P:%.2f L:%.1f\n", 
+    temp, humidity, pressure, lightPercent);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+  
+  unsigned long currentTime = millis();
+  if (currentTime - lastSensorRead >= sensorReadInterval) {
+    publishSensorData();
+    lastSensorRead = currentTime;
+  }
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="cloud">
+                    <h2>Cloud Integration with InfluxDB</h2>
+                    <h3>Setup InfluxDB:</h3>
+                    <div class="code-block">
+<pre><code># Install InfluxDB
+wget https://dl.influxdata.com/influxdb/releases/influxdb_1.8.0_amd64.deb
+sudo dpkg -i influxdb_1.8.0_amd64.deb
+sudo systemctl start influxdb
+
+# Create database
+influx
+> CREATE DATABASE weather_data
+> CREATE USER weather WITH PASSWORD 'weather123'
+> GRANT ALL ON weather_data TO weather
+> EXIT</code></pre>
+                    </div>
+
+                    <h3>Node.js Backend to Store Data:</h3>
+                    <div class="code-block">
+<pre><code class="language-javascript">const mqtt = require('mqtt');
+const influx = require('influx');
+
+const client = mqtt.connect('mqtt://localhost:1883', {
+  username: 'weather',
+  password: 'password123'
+});
+
+const influxDB = new influx.InfluxDB({
+  host: 'localhost',
+  database: 'weather_data',
+  username: 'weather',
+  password: 'weather123',
+  schema: [
+    {
+      measurement: 'weather',
+      fields: {
+        temperature: influx.FieldType.FLOAT,
+        humidity: influx.FieldType.FLOAT,
+        pressure: influx.FieldType.FLOAT,
+        light: influx.FieldType.FLOAT
+      },
+      tags: ['location']
+    }
+  ]
+});
+
+client.on('message', (topic, message) => {
+  const topicParts = topic.split('/');
+  const measurementType = topicParts[1];
+  const value = parseFloat(message.toString());
+  
+  // Store in InfluxDB
+  influxDB.writePoints([{
+    measurement: 'weather',
+    tags: { location: 'outside' },
+    fields: {
+      [measurementType]: value
+    }
+  }]);
+});
+
+client.subscribe('weather/#');</code></pre>
+                    </div>
+                </section>
+
+                <section id="dashboard">
+                    <h2>Real-Time Dashboard</h2>
+                    <h3>Express API to Query Data:</h3>
+                    <div class="code-block">
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+app.get('/api/current', async (req, res) => {
+  const results = await influxDB.query(`
+    SELECT LAST(*) FROM weather
+  `);
+  res.json(results[0]);
+});
+
+app.get('/api/history', async (req, res) => {
+  const results = await influxDB.query(`
+    SELECT * FROM weather WHERE time > now() - 24h
+  `);
+  res.json(results);
+});
+
+app.listen(3000, () => {
+  console.log('API server running on port 3000');
+});</code></pre>
+                    </div>
+
+                    <h3>React Dashboard Component:</h3>
+                    <div class="code-block">
+<pre><code class="language-javascript">import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis } from 'recharts';
+
+function WeatherDashboard() {
+  const [current, setCurrent] = useState({});
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    // Fetch current data
+    fetch('/api/current')
+      .then(r => r.json())
+      .then(data => setCurrent(data[0]));
+
+    // Fetch historical data
+    fetch('/api/history')
+      .then(r => r.json())
+      .then(data => setHistory(data[0]));
+  }, []);
+
+  return (
+    &lt;div style={{padding: '20px'}}&gt;
+      &lt;h1&gt;Weather Station Dashboard&lt;/h1&gt;
+      &lt;div&gt;
+        &lt;p&gt;Temperature: {current.temperature}°C&lt;/p&gt;
+        &lt;p&gt;Humidity: {current.humidity}%&lt;/p&gt;
+        &lt;p&gt;Pressure: {current.pressure} mb&lt;/p&gt;
+        &lt;p&gt;Light: {current.light}%&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;LineChart width={800} height={300} data={history}&gt;
+        &lt;XAxis dataKey="time" /&gt;
+        &lt;YAxis /&gt;
+        &lt;Line type="monotone" dataKey="temperature" stroke="#ff7300" /&gt;
+      &lt;/LineChart&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default WeatherDashboard;</code></pre>
+                    </div>
+                </section>
+
+                <section id="deployment">
+                    <h2>Deployment & Testing</h2>
+                    <h3>Pre-Deployment Checklist:</h3>
+                    <ul>
+                        <li>✓ Test all sensors individually</li>
+                        <li>✓ Verify WiFi connectivity</li>
+                        <li>✓ Test MQTT communication</li>
+                        <li>✓ Verify InfluxDB data storage</li>
+                        <li>✓ Test dashboard connectivity</li>
+                        <li>✓ Check power consumption</li>
+                        <li>✓ Test in outdoor conditions</li>
+                    </ul>
+
+                    <h3>Outdoor Installation:</h3>
+                    <div class="code-block">
+<pre><code>1. Place in weather-protected enclosure (allow air circulation)
+2. Ensure proper sensor orientation (avoid direct sun on temp sensor)
+3. Mount on pole or elevated surface (away from obstacles)
+4. Verify WiFi signal strength (minimum -70 dBm)
+5. Set up automatic data logging and archiving
+6. Configure alerts for extreme weather conditions</code></pre>
+                    </div>
+
+                    <h3>Performance Metrics:</h3>
+                    <table class="functions-table">
+                        <tr>
+                            <th>Metric</th>
+                            <th>Expected Value</th>
+                            <th>Acceptable Range</th>
+                        </tr>
+                        <tr>
+                            <td>Update Frequency</td>
+                            <td>30 seconds</td>
+                            <td>20-60 seconds</td>
+                        </tr>
+                        <tr>
+                            <td>Data Accuracy</td>
+                            <td>±0.5°C</td>
+                            <td>±1°C</td>
+                        </tr>
+                        <tr>
+                            <td>Uptime</td>
+                            <td>99.5%</td>
+                            <td>>95%</td>
+                        </tr>
+                        <tr>
+                            <td>Power Consumption</td>
+                            <td>50-100 mW</td>
+                            <td>&lt;200 mW</td>
+                        </tr>
+                    </table>
+
+                    <div class="success-box">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Congratulations!</strong> You've built a complete production-ready IoT weather station! Next steps: Add more sensors, implement machine learning for predictions, or deploy multiple stations for regional monitoring.</p>
+                    </div>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Bitronix Lab. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>

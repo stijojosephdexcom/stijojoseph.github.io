@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded RTOS - Bitronix Lab</title>
+    <link rel="stylesheet" href="../css/tutorial.css">
+    <link rel="stylesheet" href="../css/extras.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-progress" data-page-progress></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="nav-logo-mark">
+                    <img src="../Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+                </span>
+                <span>Bitronix Lab</span>
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="../index.html">Home</a> /
+                <a href="../index.html#topics">Topics</a> /
+                <span>Embedded RTOS</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="tutorial-hero">
+        <div class="tutorial-hero-inner">
+            <div>
+                <p class="eyebrow">Bitronix Lab Topic</p>
+                <h1><span class="gradient-text">Embedded RTOS</span></h1>
+                <p>When a single <code>while(1)</code> loop is no longer enough — give your firmware a real-time operating system and let tasks, queues and semaphores do the heavy lifting.</p>
+                <div class="topic-hero-tags">
+                    <span>FreeRTOS</span><span>Zephyr</span><span>Tasks</span><span>Queues</span><span>Mutexes</span>
+                </div>
+            </div>
+            <div class="tutorial-mission-card">
+                <img src="../Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+                <span>Innovating ideas, empowering future</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="tutorial-container">
+        <aside class="tutorial-sidebar">
+            <div class="tutorial-nav">
+                <h3>On this page</h3>
+                <ul>
+                    <li><a href="#why-rtos">Why an RTOS?</a></li>
+                    <li><a href="#concepts">Core concepts</a></li>
+                    <li><a href="#scheduler">The scheduler</a></li>
+                    <li><a href="#tasks">Tasks in FreeRTOS</a></li>
+                    <li><a href="#sync">Synchronization</a></li>
+                    <li><a href="#isr">ISRs &amp; the RTOS</a></li>
+                    <li><a href="#pitfalls">Pitfalls &amp; tips</a></li>
+                </ul>
+            </div>
+            <div class="other-tutorials">
+                <h3>Related topics</h3>
+                <a href="microcontrollers.html">Microcontrollers →</a>
+                <a href="embedded-c.html">Embedded C →</a>
+                <a href="weather-station.html">Weather Station →</a>
+            </div>
+        </aside>
+
+        <main class="tutorial-content">
+            <article>
+                <h1>Embedded RTOS: Multi-Tasking on a Microcontroller</h1>
+                <div class="article-meta">
+                    <span><i class="fas fa-clock"></i> 30 min read</span>
+                    <span><i class="fas fa-chart-line"></i> Intermediate → Advanced</span>
+                    <span><i class="fas fa-cogs"></i> Firmware</span>
+                </div>
+
+                <section id="why-rtos">
+                    <h2>Why an RTOS?</h2>
+                    <p>Bare-metal super-loops work — until they don't. The moment you have a UART that needs servicing every 1 ms, a button that must respond instantly, a sensor sampled at 100 Hz <em>and</em> a Wi-Fi stack, you need true concurrency. That is what an RTOS gives you.</p>
+                    <div class="info-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>RTOS</strong> = Real-Time Operating System. Not "fast" — <em>predictable</em>. A task with a deadline always runs by its deadline.</p>
+                    </div>
+                </section>
+
+                <section id="concepts">
+                    <h2>Core concepts</h2>
+                    <ul class="components-list">
+                        <li><strong>Task</strong> — an independent thread of execution with its own stack and priority.</li>
+                        <li><strong>Scheduler</strong> — picks which task runs next, based on priority and state.</li>
+                        <li><strong>Tick</strong> — periodic timer (typically 1 ms) that drives time-keeping.</li>
+                        <li><strong>Queue</strong> — thread-safe FIFO for passing data between tasks.</li>
+                        <li><strong>Semaphore</strong> — signalling primitive (binary or counting).</li>
+                        <li><strong>Mutex</strong> — exclusive lock with priority inheritance.</li>
+                        <li><strong>Software timer</strong> — schedule a callback to run later.</li>
+                    </ul>
+                </section>
+
+                <section id="scheduler">
+                    <h2>The scheduler in 30 seconds</h2>
+                    <p>FreeRTOS, Zephyr, ThreadX and friends use <strong>preemptive priority-based scheduling</strong>:</p>
+                    <ol>
+                        <li>Every task is in one of: <em>Running</em>, <em>Ready</em>, <em>Blocked</em>, <em>Suspended</em>.</li>
+                        <li>The highest-priority Ready task always runs.</li>
+                        <li>If two tasks share a priority, they round-robin on each tick.</li>
+                        <li>A task <em>blocks</em> when waiting for a queue, semaphore, mutex or delay.</li>
+                    </ol>
+                </section>
+
+                <section id="tasks">
+                    <h2>Tasks in FreeRTOS</h2>
+                    <p>A FreeRTOS task is just an infinite-loop function with its own stack:</p>
+                    <div class="code-block">
+<pre><code class="language-c">#include "FreeRTOS.h"
+#include "task.h"
+
+static void blink_task(void *arg) {
+    (void)arg;
+    for (;;) {
+        gpio_toggle(LED_PIN);
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+static void sensor_task(void *arg) {
+    (void)arg;
+    for (;;) {
+        int16_t t = read_temperature();
+        publish(t);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+int main(void) {
+    board_init();
+
+    xTaskCreate(blink_task,  "blink",  256, NULL, 1, NULL);
+    xTaskCreate(sensor_task, "sensor", 512, NULL, 3, NULL);
+
+    vTaskStartScheduler();   // never returns
+    for (;;) { }
+}
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="sync">
+                    <h2>Synchronization — queues, semaphores, mutexes</h2>
+
+                    <h3>Queue</h3>
+                    <div class="code-block">
+<pre><code class="language-c">QueueHandle_t q = xQueueCreate(8, sizeof(int16_t));
+
+/* producer */
+int16_t reading = read_adc();
+xQueueSend(q, &amp;reading, portMAX_DELAY);
+
+/* consumer */
+int16_t v;
+if (xQueueReceive(q, &amp;v, pdMS_TO_TICKS(100))) {
+    process(v);
+}
+</code></pre>
+                    </div>
+
+                    <h3>Mutex</h3>
+                    <div class="code-block">
+<pre><code class="language-c">SemaphoreHandle_t spi_lock = xSemaphoreCreateMutex();
+
+void log_to_flash(const char *line) {
+    if (xSemaphoreTake(spi_lock, pdMS_TO_TICKS(50))) {
+        spi_write(line);
+        xSemaphoreGive(spi_lock);
+    }
+}
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="isr">
+                    <h2>ISRs &amp; the RTOS — the golden rule</h2>
+                    <p>Inside an interrupt service routine, you may <strong>only</strong> call the <code>...FromISR()</code> versions of RTOS APIs:</p>
+                    <div class="code-block">
+<pre><code class="language-c">void EXTI0_IRQHandler(void) {
+    BaseType_t higher_prio_woken = pdFALSE;
+    xSemaphoreGiveFromISR(button_sem, &amp;higher_prio_woken);
+    portYIELD_FROM_ISR(higher_prio_woken);
+    EXTI-&gt;PR = (1U &lt;&lt; 0);   // clear flag
+}
+</code></pre>
+                    </div>
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Never block inside an ISR.</strong> No <code>vTaskDelay</code>, no <code>xQueueSend</code>, no <code>printf</code>. Signal a task and let it do the work.</p>
+                    </div>
+                </section>
+
+                <section id="pitfalls">
+                    <h2>Pitfalls &amp; tips</h2>
+                    <ul class="components-list">
+                        <li><strong>Stack sizing</strong> — start with <code>configCHECK_FOR_STACK_OVERFLOW = 2</code>, then tune with high-water-mark APIs.</li>
+                        <li><strong>Priority inversion</strong> — always use a mutex (with priority inheritance), not a binary semaphore, for shared resources.</li>
+                        <li><strong>Tickless idle</strong> — enable it to slash power consumption when idle.</li>
+                        <li><strong>Task storms</strong> — don't spawn one task per feature; consolidate where you can.</li>
+                        <li><strong>Determinism &gt; throughput</strong> — measure worst-case, not average.</li>
+                    </ul>
+                    <div class="success-box">
+                        <i class="fas fa-check-circle"></i>
+                        <p>An RTOS does not make your firmware "fancier" — it makes it <em>predictable</em>. That is what shipping products is built on.</p>
+                    </div>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Bitronix Lab — Innovating ideas, empowering future.</p>
+        </div>
+    </footer>
+
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>
