@@ -217,6 +217,30 @@
     requestAnimationFrame(draw);
   }
 
+  /* ---------- 3D mouse tilt for [data-tilt-3d] elements ---------- */
+  if (!reduced) {
+    const tiltEls = document.querySelectorAll("[data-tilt-3d]");
+    tiltEls.forEach((el) => {
+      const max = 14; // degrees
+      el.addEventListener("pointermove", (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        const ry = (x - 0.5) * (max * 2);
+        const rx = (0.5 - y) * (max * 2);
+        el.style.setProperty("--ry", ry + "deg");
+        el.style.setProperty("--rx", rx + "deg");
+        // also tilt the wrap itself for the YouTube player etc.
+        el.style.transform = `perspective(1000px) rotateX(${rx * 0.5}deg) rotateY(${ry * 0.5}deg)`;
+      });
+      el.addEventListener("pointerleave", () => {
+        el.style.setProperty("--ry", "0deg");
+        el.style.setProperty("--rx", "0deg");
+        el.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
+      });
+    });
+  }
+
   /* ---------- Journey reveal on scroll ---------- */
   const steps = document.querySelectorAll("[data-journey-step]");
   if (steps.length && "IntersectionObserver" in window) {

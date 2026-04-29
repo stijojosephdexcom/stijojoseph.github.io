@@ -33,6 +33,7 @@
       <a href="#topics">Topics</a>
       <a href="#learning">Tutorials</a>
       <a href="#blog">Blog</a>
+      <a href="#watch">Watch</a>
       <a href="#founder">Founder</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -54,7 +55,7 @@
         <div class="hero-brand-card">
           <img class="hero-logo hero-logo-photo" src="Website/assets/brand_logo.png" alt="Bitronix Lab logo">
           <div>
-            <p class="eyebrow">Embedded systems + applied AI</p>
+            <p class="eyebrow">Embedded systems + applied &amp; edge AI</p>
             <span class="brand-motto">Innovating ideas, empowering future</span>
           </div>
         </div>
@@ -79,9 +80,27 @@
       </div>
 
       <div class="hero-visual" aria-hidden="true">
-        <div class="hero-lockup-shell" data-magnetic>
-          <img class="brand-lockup" src="Website/assets/bitronix-brand-lockup.svg" alt="">
-          <span class="lockup-glow"></span>
+        <div class="hero-logo3d" data-magnetic data-tilt-3d>
+          <div class="logo3d-stage">
+            <div class="logo3d-cube">
+              <div class="logo3d-face logo3d-face-front"><img src="Website/assets/brand_logo.png" alt=""></div>
+              <div class="logo3d-face logo3d-face-back"><img src="Website/assets/brand_logo_mission.png" alt=""></div>
+              <div class="logo3d-face logo3d-face-right"></div>
+              <div class="logo3d-face logo3d-face-left"></div>
+              <div class="logo3d-face logo3d-face-top"></div>
+              <div class="logo3d-face logo3d-face-bottom"></div>
+            </div>
+            <div class="logo3d-orbit" aria-hidden="true">
+              <span class="logo3d-ring r1"></span>
+              <span class="logo3d-ring r2"></span>
+              <span class="logo3d-ring r3"></span>
+              <span class="logo3d-particle p1"></span>
+              <span class="logo3d-particle p2"></span>
+              <span class="logo3d-particle p3"></span>
+              <span class="logo3d-particle p4"></span>
+            </div>
+            <div class="logo3d-floor" aria-hidden="true"></div>
+          </div>
         </div>
 
         <div class="lab-device" data-magnetic>
@@ -102,8 +121,8 @@
               <span class="pin pin-b"></span>
               <span class="pin pin-c"></span>
               <span class="pin pin-d"></span>
-              <div class="core-chip">
-                <span>BX</span>
+              <div class="core-chip core-chip-logo">
+                <img src="Website/assets/brand_logo.png" alt="" aria-hidden="true">
               </div>
             </div>
 
@@ -259,7 +278,7 @@
           <p class="eyebrow">About</p>
           <h2 id="about-title">What is <span class="gradient-text">Bitronix Lab</span>?</h2>
           <p class="about-lead">
-            Bitronix Lab is an embedded systems and applied AI studio. We design intelligent electronics, write the firmware that brings them to life, and teach engineers how to build the same things themselves.
+            Bitronix Lab is an embedded systems, applied AI and edge AI studio. We design intelligent electronics, write the firmware that brings them to life, and teach engineers how to build the same things themselves.
           </p>
           <p>
             Whether you are shipping a connected product, prototyping a sensor mesh, or learning the fundamentals of microcontrollers, RTOS and Embedded C — we turn ideas into working hardware that you can hold, measure, and improve.
@@ -607,6 +626,60 @@
       </div>
     </section>
 
+    <section class="yt-section" id="watch" aria-labelledby="yt-title">
+      <div class="yt-grid-bg" aria-hidden="true"></div>
+      <div class="section-inner yt-inner">
+        <div class="section-heading yt-heading">
+          <p class="eyebrow">Watch &amp; Learn</p>
+          <h2 id="yt-title">STM32 deep dives on <span class="gradient-text">YouTube</span></h2>
+          <p>Hands-on tutorials, register-level walkthroughs and project builds from the Bitronix Lab channel — streaming straight from <a class="yt-handle" href="https://www.youtube.com/@BITRONIXLAB" target="_blank" rel="noopener">@BITRONIXLAB</a>.</p>
+        </div>
+
+        <div class="yt-layout">
+          <div class="yt-player-wrap" data-tilt-3d>
+            <!--
+              STM32 PLAYLIST EMBED
+              Replace PLAYLIST_ID_HERE with the actual YouTube playlist ID
+              (the part after "list=" in the playlist URL). Until then this
+              loads the channel's STM32 search results as a fallback.
+            -->
+            <iframe
+              class="yt-player"
+              src="https://www.youtube.com/embed?listType=playlist&amp;list=PLAYLIST_ID_HERE"
+              title="Bitronix Lab — STM32 playlist"
+              loading="lazy"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen></iframe>
+            <span class="yt-player-glow" aria-hidden="true"></span>
+          </div>
+
+          <aside class="yt-side">
+            <a class="yt-channel-card" href="https://www.youtube.com/@BITRONIXLAB" target="_blank" rel="noopener">
+              <div class="yt-channel-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+              </div>
+              <div>
+                <span>Subscribe on YouTube</span>
+                <strong>@BITRONIXLAB</strong>
+              </div>
+            </a>
+
+            <ul class="yt-topics" aria-label="STM32 topics covered">
+              <li><span>01</span><strong>STM32 Bare-Metal Bring-up</strong><em>Clocks, GPIO, registers</em></li>
+              <li><span>02</span><strong>HAL vs LL vs Registers</strong><em>When to use which</em></li>
+              <li><span>03</span><strong>Timers, PWM &amp; Interrupts</strong><em>Hands-on labs</em></li>
+              <li><span>04</span><strong>UART, I2C, SPI &amp; DMA</strong><em>Real peripherals</em></li>
+              <li><span>05</span><strong>FreeRTOS on STM32</strong><em>Tasks, queues, ISRs</em></li>
+            </ul>
+
+            <a class="button button-primary yt-cta" href="https://www.youtube.com/@BITRONIXLAB/playlists" target="_blank" rel="noopener">Open all playlists →</a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
     <section class="founder-section" id="founder" aria-labelledby="founder-title">
       <div class="section-inner founder-layout">
         <div class="founder-card" data-magnetic>
@@ -684,9 +757,31 @@
   </main>
 
   <footer class="site-footer">
-    <div class="section-inner footer-grid">
-      <p>Bitronix Lab</p>
-      <p>Design. Teach. Innovate.</p>
+    <div class="section-inner footer-grid footer-grid-rich">
+      <div class="footer-brand">
+        <img src="Website/assets/brand_logo.png" alt="Bitronix Lab" class="footer-logo">
+        <div>
+          <p class="footer-name">Bitronix Lab</p>
+          <p class="footer-tag">Design. Teach. Innovate.</p>
+        </div>
+      </div>
+
+      <nav class="footer-social" aria-label="Bitronix Lab on the web">
+        <a class="social-chip social-yt" href="https://www.youtube.com/@BITRONIXLAB" target="_blank" rel="noopener" aria-label="Bitronix Lab on YouTube">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+          <span>YouTube</span>
+        </a>
+        <a class="social-chip social-li" href="https://www.linkedin.com/in/stijo-joseph-8678051ab" target="_blank" rel="noopener" aria-label="Stijo Joseph on LinkedIn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.62 0 4.29 2.38 4.29 5.48v6.26zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+          <span>LinkedIn</span>
+        </a>
+        <a class="social-chip social-mail" href="mailto:hello@bitronixlab.com" aria-label="Email Bitronix Lab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm10 9.2L2.4 6h19.2L12 13.2zM2 8.4V18h20V8.4l-10 7.2L2 8.4z"/></svg>
+          <span>Email</span>
+        </a>
+      </nav>
+
+      <p class="footer-fine">&copy; 2026 Bitronix Lab · Founded by <a href="https://www.linkedin.com/in/stijo-joseph-8678051ab" target="_blank" rel="noopener">Stijo Joseph</a></p>
     </div>
   </footer>
 

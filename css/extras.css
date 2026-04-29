@@ -1038,3 +1038,375 @@ body > footer { position: relative; z-index: 1; }
     margin: 0 0 0 52px;
   }
 }
+
+
+/* ==========================================================================
+   3D LOGO HERO (replaces the old brand-lockup animation)
+   ========================================================================== */
+.hero-lockup-shell { display: none !important; } /* retire old animation */
+
+.hero-logo3d {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(380px, 100%);
+  margin: 0 auto;
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
+  --rx: 0deg;
+  --ry: 0deg;
+}
+
+.logo3d-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.logo3d-cube {
+  position: absolute;
+  inset: 18%;
+  transform-style: preserve-3d;
+  animation: logoCubeSpin 14s linear infinite;
+  filter: drop-shadow(0 30px 60px rgba(0, 245, 255, 0.45));
+}
+
+@keyframes logoCubeSpin {
+  0%   { transform: rotateX(-12deg) rotateY(0deg); }
+  100% { transform: rotateX(-12deg) rotateY(360deg); }
+}
+
+.logo3d-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(0, 245, 255, 0.35), rgba(4, 10, 18, 0.95) 70%);
+  border: 1px solid rgba(0, 245, 255, 0.5);
+  box-shadow:
+    inset 0 0 30px rgba(0, 245, 255, 0.35),
+    0 0 40px rgba(0, 245, 255, 0.25);
+  backface-visibility: hidden;
+}
+
+.logo3d-face img {
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(0, 245, 255, 0.7));
+}
+
+/* Cube depth — half of cube width (we use viewport-relative via CSS var) */
+.logo3d-cube { --d: 110px; }
+.logo3d-face-front  { transform: translateZ(var(--d)); }
+.logo3d-face-back   { transform: rotateY(180deg) translateZ(var(--d)); }
+.logo3d-face-right  { transform: rotateY( 90deg) translateZ(var(--d)); background: linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(255, 200, 87, 0.10)); }
+.logo3d-face-left   { transform: rotateY(-90deg) translateZ(var(--d)); background: linear-gradient(135deg, rgba(143, 116, 255, 0.15), rgba(0, 245, 255, 0.10)); }
+.logo3d-face-top    { transform: rotateX( 90deg) translateZ(var(--d)); background: linear-gradient(135deg, rgba(255, 102, 85, 0.15), rgba(0, 245, 255, 0.10)); }
+.logo3d-face-bottom { transform: rotateX(-90deg) translateZ(var(--d)); background: linear-gradient(135deg, rgba(0, 245, 255, 0.10), rgba(143, 116, 255, 0.15)); }
+
+@media (min-width: 1100px) {
+  .logo3d-cube { --d: 130px; }
+}
+
+/* Orbit rings + particles */
+.logo3d-orbit {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.logo3d-ring {
+  position: absolute;
+  inset: 4%;
+  border: 1px dashed rgba(0, 245, 255, 0.4);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.logo3d-ring.r1 { transform: rotateX(70deg) rotateZ(0deg);   animation: ringSpin 16s linear infinite; }
+.logo3d-ring.r2 { inset: 12%; border-color: rgba(255, 200, 87, 0.45); transform: rotateX(60deg) rotateY(30deg); animation: ringSpin 22s linear infinite reverse; }
+.logo3d-ring.r3 { inset: 22%; border-style: solid; border-color: rgba(143, 116, 255, 0.45); transform: rotateX(75deg) rotateY(-20deg); animation: ringSpin 12s linear infinite; }
+
+@keyframes ringSpin {
+  to { transform: rotateX(70deg) rotateZ(360deg); }
+}
+
+.logo3d-particle {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #00f5ff;
+  box-shadow: 0 0 14px #00f5ff;
+  top: 50%; left: 50%;
+  transform-origin: 0 0;
+  animation: particleOrbit 6s linear infinite;
+}
+.logo3d-particle.p1 { animation-delay: 0s;   }
+.logo3d-particle.p2 { animation-delay: 1.5s; background: #ffc857; box-shadow: 0 0 14px #ffc857; }
+.logo3d-particle.p3 { animation-delay: 3s;   background: #ff6655; box-shadow: 0 0 14px #ff6655; }
+.logo3d-particle.p4 { animation-delay: 4.5s; background: #8f74ff; box-shadow: 0 0 14px #8f74ff; }
+
+@keyframes particleOrbit {
+  from { transform: translate(-50%, -50%) rotate(0deg)   translateX(155px) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg) translateX(155px) rotate(-360deg); }
+}
+
+/* Holographic floor reflection */
+.logo3d-floor {
+  position: absolute;
+  left: 50%;
+  bottom: -8%;
+  width: 70%;
+  height: 18%;
+  transform: translateX(-50%) rotateX(75deg);
+  background: radial-gradient(ellipse, rgba(0, 245, 255, 0.45), transparent 70%);
+  filter: blur(10px);
+  opacity: 0.7;
+  animation: floorPulse 3.6s ease-in-out infinite;
+}
+@keyframes floorPulse {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) rotateX(75deg) scale(1); }
+  50%      { opacity: 0.95; transform: translateX(-50%) rotateX(75deg) scale(1.08); }
+}
+
+/* New core-chip logo (replaces BX) */
+.core-chip-logo { padding: 6px; }
+.core-chip-logo img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.7));
+  animation: coreChipSpin 8s ease-in-out infinite;
+}
+@keyframes coreChipSpin {
+  0%, 100% { transform: rotateY(0deg)   scale(1); }
+  50%      { transform: rotateY(180deg) scale(1.05); }
+}
+
+/* ==========================================================================
+   GENERIC 3D MOUSE-TILT (data-tilt-3d)
+   ========================================================================== */
+[data-tilt-3d] {
+  transform-style: preserve-3d;
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ==========================================================================
+   YOUTUBE / STM32 SECTION
+   ========================================================================== */
+.yt-section {
+  position: relative;
+  overflow: hidden;
+  padding: 110px 0 120px;
+  color: #ecf6ff;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 0, 0, 0.16), transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(0, 245, 255, 0.15), transparent 40%),
+    linear-gradient(180deg, #04080d, #07101a 60%, #04080d);
+  isolation: isolate;
+}
+
+.yt-grid-bg {
+  position: absolute; inset: 0; z-index: -1;
+  background-image:
+    linear-gradient(90deg,  rgba(67, 199, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(67, 199, 255, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
+}
+
+.yt-inner { width: min(1200px, 92%); margin: 0 auto; }
+.yt-heading { text-align: center; margin-bottom: 56px; }
+.yt-heading h2 { color: #fff; font-size: clamp(2rem, 3.6vw, 3rem); margin: 6px 0 14px; }
+.yt-heading > p { color: rgba(236, 246, 255, 0.78); max-width: 720px; margin: 0 auto; }
+.yt-handle {
+  color: #ff6655; font-weight: 920; text-decoration: none;
+  border-bottom: 1px dashed rgba(255, 102, 85, 0.6);
+  padding-bottom: 1px;
+}
+.yt-handle:hover { color: #ffc857; border-color: #ffc857; }
+
+.yt-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
+  gap: 36px;
+  align-items: stretch;
+}
+
+.yt-player-wrap {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 245, 255, 0.15),
+    inset 0 0 30px rgba(0, 245, 255, 0.08);
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.yt-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: 0;
+  background: #000;
+}
+.yt-player-glow {
+  position: absolute; inset: -2px; border-radius: inherit;
+  pointer-events: none; z-index: -1;
+  background: conic-gradient(from 0deg, #00f5ff, #ff0033, #ffc857, #00f5ff);
+  filter: blur(22px);
+  opacity: 0.45;
+  animation: ytGlowSpin 9s linear infinite;
+}
+@keyframes ytGlowSpin { to { transform: rotate(360deg); } }
+
+.yt-side {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.yt-channel-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 0, 51, 0.4);
+  background:
+    linear-gradient(135deg, rgba(255, 0, 51, 0.18), rgba(0, 245, 255, 0.08));
+  color: #fff;
+  text-decoration: none;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+.yt-channel-card:hover {
+  transform: translateY(-4px);
+  border-color: #ff0033;
+  box-shadow: 0 26px 60px rgba(255, 0, 51, 0.35);
+}
+.yt-channel-icon {
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  background: #ff0033;
+  color: #fff;
+  box-shadow: 0 0 30px rgba(255, 0, 51, 0.55);
+}
+.yt-channel-icon svg { width: 30px; height: 30px; }
+.yt-channel-card span {
+  display: block;
+  font-size: 0.74rem; font-weight: 880;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.yt-channel-card strong { font-size: 1.05rem; font-weight: 920; letter-spacing: 0.02em; }
+
+.yt-topics {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: grid; gap: 10px;
+}
+.yt-topics li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  background: rgba(6, 14, 22, 0.6);
+  backdrop-filter: blur(6px);
+  transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+.yt-topics li:hover {
+  transform: translateX(4px);
+  border-color: rgba(0, 245, 255, 0.55);
+  background: rgba(0, 245, 255, 0.06);
+}
+.yt-topics li span {
+  font-family: ui-monospace, monospace;
+  font-weight: 800; color: rgba(0, 245, 255, 0.85);
+  letter-spacing: 0.1em;
+}
+.yt-topics li strong { color: #fff; font-weight: 900; font-size: 0.98rem; }
+.yt-topics li em { font-style: normal; color: rgba(236, 246, 255, 0.6); font-size: 0.78rem; letter-spacing: 0.04em; }
+
+.yt-cta { justify-self: start; }
+
+@media (max-width: 900px) {
+  .yt-layout { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   FOOTER ENHANCEMENTS (social links)
+   ========================================================================== */
+.footer-grid-rich {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px 36px;
+  row-gap: 14px;
+}
+.footer-brand { display: flex; align-items: center; gap: 14px; }
+.footer-logo {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  padding: 4px;
+  background: radial-gradient(circle at 30% 25%, rgba(0, 245, 255, 0.3), rgba(4, 10, 18, 0.92) 70%);
+  box-shadow: 0 0 0 1px rgba(0, 245, 255, 0.35), 0 0 18px rgba(0, 245, 255, 0.3);
+  object-fit: contain;
+}
+.footer-name { margin: 0; font-weight: 950; font-size: 1.05rem; }
+.footer-tag  { margin: 0; opacity: 0.7; font-size: 0.86rem; }
+
+.footer-social {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.social-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 245, 255, 0.28);
+  background: rgba(6, 14, 22, 0.55);
+  color: inherit;
+  text-decoration: none;
+  font-weight: 880;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+.social-chip svg { width: 16px; height: 16px; }
+.social-chip:hover { transform: translateY(-2px); }
+.social-yt:hover   { border-color: #ff0033; color: #ff0033; box-shadow: 0 8px 24px rgba(255, 0, 51, 0.3); }
+.social-li:hover   { border-color: #0a66c2; color: #0a66c2; box-shadow: 0 8px 24px rgba(10, 102, 194, 0.3); }
+.social-mail:hover { border-color: #00f5ff; color: #00f5ff; box-shadow: 0 8px 24px rgba(0, 245, 255, 0.3); }
+
+.footer-fine { grid-column: 1 / -1; margin: 0; opacity: 0.65; font-size: 0.82rem; }
+.footer-fine a { color: inherit; border-bottom: 1px dashed currentColor; text-decoration: none; }
+
+@media (max-width: 720px) {
+  .footer-grid-rich { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo3d-cube,
+  .logo3d-ring,
+  .logo3d-particle,
+  .logo3d-floor,
+  .core-chip-logo img,
+  .yt-player-glow { animation: none !important; }
+}
