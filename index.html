@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Bitronix Lab designs embedded systems, teaches practical electronics and AI, and prototypes intelligent products.">
   <title>Bitronix Lab | Embedded Systems and AI</title>
+  <link rel="icon" type="image/png" href="Website/assets/brand_logo.png">
+  <link rel="apple-touch-icon" href="Website/assets/brand_logo.png">
   <link rel="stylesheet" href="Website/styles.css">
   <link rel="stylesheet" href="css/extras.css">
 </head>
 <body>
+  <canvas class="pcb-bg" data-pcb-bg aria-hidden="true"></canvas>
   <header class="site-header" data-header>
     <a class="brand" href="#top" aria-label="Bitronix Lab home">
-      <span class="brand-mark brand-mark-logo">
-        <img src="Website/assets/bitronix-logo.svg" alt="" aria-hidden="true">
+      <span class="brand-mark brand-mark-logo brand-mark-photo">
+        <img src="Website/assets/brand_logo.png" alt="" aria-hidden="true">
       </span>
       <span>Bitronix Lab</span>
     </a>
@@ -25,6 +28,7 @@
 
     <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
       <a href="#about">About</a>
+      <a href="#journey">Journey</a>
       <a href="#services">Services</a>
       <a href="#topics">Topics</a>
       <a href="#learning">Tutorials</a>
@@ -48,7 +52,7 @@
 
       <div class="hero-content">
         <div class="hero-brand-card">
-          <img class="hero-logo" src="Website/assets/bitronix-logo.svg" alt="Bitronix Lab logo">
+          <img class="hero-logo hero-logo-photo" src="Website/assets/brand_logo.png" alt="Bitronix Lab logo">
           <div>
             <p class="eyebrow">Embedded systems + applied AI</p>
             <span class="brand-motto">Innovating ideas, empowering future</span>
@@ -163,6 +167,92 @@
       </div>
     </section>
 
+    <section class="journey-section" id="journey" aria-labelledby="journey-title">
+      <div class="journey-aurora" aria-hidden="true"></div>
+      <div class="journey-grid-bg" aria-hidden="true"></div>
+
+      <div class="section-inner journey-inner">
+        <div class="section-heading journey-heading">
+          <p class="eyebrow">The Bitronix Journey</p>
+          <h2 id="journey-title">From a <span class="gradient-text">spark of an idea</span> to the world that learns from it.</h2>
+          <p>Every product we touch travels the same four chapters — a portfolio of how an idea becomes silicon, software, and a skill the world can use.</p>
+        </div>
+
+        <ol class="journey-track" data-journey>
+          <li class="journey-step" data-step="01" data-journey-step>
+            <div class="journey-card">
+              <div class="journey-stage">
+                <span class="journey-num">01</span>
+                <span class="journey-tag">Innovate</span>
+              </div>
+              <h3>Brainstorming product ideas</h3>
+              <p>We start in the open — sketches, whiteboards, edge-AI hypotheses, sensor experiments. Bold concepts get pressure-tested against physics, cost, and the human who will eventually use them.</p>
+              <ul class="journey-meta">
+                <li>Concept sprints</li><li>Feasibility studies</li><li>Edge-AI hypotheses</li>
+              </ul>
+              <div class="journey-visual visual-innovate" aria-hidden="true">
+                <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+                <span class="bulb"></span>
+              </div>
+            </div>
+          </li>
+
+          <li class="journey-step" data-step="02" data-journey-step>
+            <div class="journey-card">
+              <div class="journey-stage">
+                <span class="journey-num">02</span>
+                <span class="journey-tag">Design</span>
+              </div>
+              <h3>Designing the product</h3>
+              <p>Schematics, PCB layouts, enclosures, firmware architecture, and brand voice — every layer drawn with production in mind. Beautiful where it matters, brutal where it must be.</p>
+              <ul class="journey-meta">
+                <li>Schematic capture</li><li>PCB &amp; mechanical</li><li>System architecture</li>
+              </ul>
+              <div class="journey-visual visual-design" aria-hidden="true">
+                <svg viewBox="0 0 200 120"><path d="M10 60 H60 L80 40 H140 L160 80 H190" /><circle cx="60" cy="60" r="4"/><circle cx="140" cy="40" r="4"/><circle cx="160" cy="80" r="4"/><rect x="82" y="30" width="56" height="22" rx="2"/></svg>
+              </div>
+            </div>
+          </li>
+
+          <li class="journey-step" data-step="03" data-journey-step>
+            <div class="journey-card">
+              <div class="journey-stage">
+                <span class="journey-num">03</span>
+                <span class="journey-tag">Develop</span>
+              </div>
+              <h3>Developing &amp; bringing it to life</h3>
+              <p>Bare-metal drivers, RTOS tasks, sensor fusion, on-device inference and field-update pipelines. We build until the prototype hums on the bench — then we make it boring and reliable.</p>
+              <ul class="journey-meta">
+                <li>Embedded C / RTOS</li><li>Edge AI pipelines</li><li>Bench validation</li>
+              </ul>
+              <div class="journey-visual visual-develop" aria-hidden="true">
+                <div class="code-strip"><span></span><span></span><span></span><span></span><span></span></div>
+                <div class="pulse-dot"></div>
+              </div>
+            </div>
+          </li>
+
+          <li class="journey-step" data-step="04" data-journey-step>
+            <div class="journey-card">
+              <div class="journey-stage">
+                <span class="journey-num">04</span>
+                <span class="journey-tag">Educate</span>
+              </div>
+              <h3>Educating the world</h3>
+              <p>Every project becomes a lesson. Tutorials, workshops, open hardware notes and AI training tracks — so the next generation of builders can take what we learned and go further.</p>
+              <ul class="journey-meta">
+                <li>Workshops &amp; labs</li><li>Open tutorials</li><li>AI training tracks</li>
+              </ul>
+              <div class="journey-visual visual-educate" aria-hidden="true">
+                <span class="node n1"></span><span class="node n2"></span><span class="node n3"></span><span class="node n4"></span>
+                <span class="link l1"></span><span class="link l2"></span><span class="link l3"></span>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
     <section class="about-section reveal-up" id="about" aria-labelledby="about-title">
       <div class="section-inner about-layout">
         <div class="about-copy">
@@ -218,8 +308,8 @@
         <span></span>
       </div>
       <div class="section-inner mission-layout">
-        <div class="mission-logo-panel">
-          <img src="Website/assets/bitronix-logo.svg" alt="Bitronix Lab neon circuit logo">
+        <div class="mission-logo-panel mission-logo-photo">
+          <img src="Website/assets/brand_logo_mission.png" alt="Bitronix Lab mission emblem">
           <div class="mission-line"></div>
           <p>Innovate. Design. Develop. Educate.</p>
         </div>
@@ -601,5 +691,6 @@
   </footer>
 
   <script src="Website/script.js"></script>
+  <script src="js/portfolio.js"></script>
 </body>
 </html>

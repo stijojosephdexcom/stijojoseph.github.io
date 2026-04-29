@@ -543,9 +543,498 @@
   .orb-blip,
   .topic-icon svg,
   .blog-card::before,
-  .topics-bg {
+  .topics-bg,
+  .journey-aurora,
+  .visual-innovate .spark,
+  .visual-innovate .bulb,
+  .visual-develop .pulse-dot,
+  .visual-educate .node,
+  .visual-design svg path {
     animation: none !important;
   }
   .reveal-up { opacity: 1; transform: none; }
   .type-caret { display: none; }
+  .pcb-bg { display: none; }
+}
+
+/* ==========================================================================
+   LIVING PCB BACKGROUND (full-page animated circuit canvas)
+   ========================================================================== */
+.pcb-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 18% 20%, rgba(0, 60, 80, 0.55), transparent 55%),
+    radial-gradient(ellipse at 82% 78%, rgba(60, 30, 90, 0.45), transparent 55%),
+    #03070b;
+}
+
+/* keep all real content above the PCB canvas */
+body > header,
+body > main,
+body > footer { position: relative; z-index: 1; }
+
+/* Slightly soften paper sections so the moving PCB shows through */
+.about-section,
+.blog-section,
+.section,
+.learning-section,
+.founder-section,
+.contact-section,
+.intro-band,
+.mission-section { background-color: transparent; }
+
+.about-section,
+.section,
+.learning-section,
+.founder-section,
+.contact-section,
+.intro-band,
+.mission-section,
+.blog-section {
+  background-color: rgba(244, 247, 241, 0.86);
+  backdrop-filter: blur(4px);
+}
+
+/* Keep dark sections opaque so PCB doesn't bleed weirdly */
+.topics-section { background-color: #04080d; }
+
+/* ==========================================================================
+   BRAND LOGO POLISH (when using real PNG logos)
+   ========================================================================== */
+.brand-mark-photo {
+  background: radial-gradient(circle at 35% 30%, rgba(0, 245, 255, 0.35), rgba(6, 12, 20, 0.9) 70%);
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 255, 0.35),
+    0 0 22px rgba(0, 245, 255, 0.25),
+    inset 0 0 14px rgba(0, 245, 255, 0.18);
+  overflow: hidden;
+}
+.brand-mark-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  filter: drop-shadow(0 0 4px rgba(0, 245, 255, 0.55));
+}
+.hero-logo-photo {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  border-radius: 18px;
+  padding: 6px;
+  background: radial-gradient(circle at 30% 25%, rgba(0, 245, 255, 0.28), rgba(4, 10, 18, 0.92) 70%);
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 255, 0.4),
+    0 14px 40px rgba(0, 0, 0, 0.45),
+    inset 0 0 18px rgba(0, 245, 255, 0.22);
+  filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.45));
+  animation: logoBreath 5s ease-in-out infinite;
+}
+@keyframes logoBreath {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.45)); }
+  50%      { transform: scale(1.04); filter: drop-shadow(0 0 14px rgba(0, 245, 255, 0.75)); }
+}
+
+.mission-logo-photo img {
+  width: min(320px, 80%);
+  height: auto;
+  border-radius: 22px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(0, 245, 255, 0.25), rgba(4, 10, 18, 0.92) 70%);
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 255, 0.35),
+    0 26px 70px rgba(0, 0, 0, 0.45),
+    inset 0 0 26px rgba(0, 245, 255, 0.22);
+  animation: logoBreath 6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   PORTFOLIO JOURNEY — Innovate → Design → Develop → Educate
+   ========================================================================== */
+.journey-section {
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 140px;
+  color: #ecf6ff;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(0, 245, 255, 0.18), transparent 40%),
+    radial-gradient(circle at 92% 88%, rgba(255, 102, 85, 0.16), transparent 40%),
+    linear-gradient(180deg, #04080d 0%, #07101a 60%, #04080d 100%);
+  isolation: isolate;
+}
+
+.journey-aurora {
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  background:
+    conic-gradient(from 90deg at 30% 40%,
+      rgba(0, 245, 255, 0.25), transparent 30%,
+      rgba(143, 116, 255, 0.25) 50%, transparent 70%,
+      rgba(255, 200, 87, 0.20) 88%, transparent);
+  filter: blur(70px);
+  opacity: 0.6;
+  animation: auroraSpin 28s linear infinite;
+}
+@keyframes auroraSpin { to { transform: rotate(360deg); } }
+
+.journey-grid-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(90deg,  rgba(67, 199, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(67, 199, 255, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+.journey-inner { width: min(1200px, 92%); margin: 0 auto; }
+
+.journey-heading h2 { color: #ffffff; font-size: clamp(2.2rem, 4vw, 3.6rem); }
+.journey-heading p { color: rgba(236, 246, 255, 0.72); }
+.journey-heading { text-align: center; margin-bottom: 64px; }
+.journey-heading h2,
+.journey-heading > p { margin-left: auto; margin-right: auto; }
+.journey-heading > p { max-width: 720px; }
+
+/* The numbered timeline */
+.journey-track {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 56px;
+}
+.journey-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(0, 245, 255, 0.55) 12%,
+    rgba(143, 116, 255, 0.55) 50%,
+    rgba(255, 200, 87, 0.55) 88%,
+    transparent);
+  filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.5));
+  transform: translateX(-1px);
+}
+
+.journey-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 700ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.journey-step.is-visible { opacity: 1; transform: none; }
+
+.journey-step::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00f5ff 0%, rgba(0, 245, 255, 0.2) 60%, transparent 100%);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 18px rgba(0, 245, 255, 0.85);
+  animation: nodePulse 2.4s ease-in-out infinite;
+}
+@keyframes nodePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.85; }
+  50%      { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+}
+
+.journey-step:nth-child(odd)  .journey-card { grid-column: 1; margin-right: 70px; }
+.journey-step:nth-child(even) .journey-card { grid-column: 2; margin-left:  70px; }
+
+.journey-card {
+  position: relative;
+  padding: 30px 32px 32px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01)),
+    rgba(6, 14, 22, 0.78);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(0, 245, 255, 0.08),
+    inset 0 0 30px rgba(0, 245, 255, 0.06);
+  overflow: hidden;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 280ms ease,
+              box-shadow 280ms ease;
+}
+.journey-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--ang, 0deg),
+    rgba(0, 245, 255, 0.6),
+    rgba(143, 116, 255, 0.5),
+    rgba(255, 200, 87, 0.5),
+    rgba(255, 102, 85, 0.5),
+    rgba(0, 245, 255, 0.6));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.55;
+  animation: journeyBorderSpin 9s linear infinite;
+}
+@property --ang {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes journeyBorderSpin { to { --ang: 360deg; } }
+
+.journey-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0, 245, 255, 0.55);
+  box-shadow:
+    0 36px 100px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(0, 245, 255, 0.35),
+    0 0 60px rgba(0, 245, 255, 0.18);
+}
+
+.journey-stage {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.journey-num {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: rgba(0, 245, 255, 0.85);
+}
+.journey-tag {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #04080d;
+  background: linear-gradient(135deg, #00f5ff, #ffc857);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.45);
+}
+.journey-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.55rem;
+  font-weight: 920;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.journey-card p {
+  margin: 0 0 16px;
+  color: rgba(236, 246, 255, 0.78);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.journey-meta {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+}
+.journey-meta li {
+  font-size: 0.74rem;
+  font-weight: 880;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  background: rgba(0, 245, 255, 0.06);
+  color: rgba(236, 246, 255, 0.85);
+}
+
+/* Per-card visuals */
+.journey-visual {
+  position: relative;
+  height: 110px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 245, 255, 0.18);
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 245, 255, 0.04) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(0deg,  rgba(0, 245, 255, 0.04) 0 1px, transparent 1px 24px),
+    rgba(4, 10, 18, 0.6);
+  overflow: hidden;
+}
+
+/* 01 Innovate – idea sparks + bulb */
+.visual-innovate .bulb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe88a, #ffc857 60%, transparent 75%);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 40px #ffc857, 0 0 80px rgba(255, 200, 87, 0.4);
+  animation: bulbPulse 2.4s ease-in-out infinite;
+}
+@keyframes bulbPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);   filter: brightness(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.15); filter: brightness(1.4); }
+}
+.visual-innovate .spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f5ff;
+  box-shadow: 0 0 12px #00f5ff;
+  opacity: 0.85;
+  animation: sparkRise 3s linear infinite;
+}
+.visual-innovate .s1 { left: 18%; bottom: 0; animation-delay: 0s;   }
+.visual-innovate .s2 { left: 70%; bottom: 0; animation-delay: 1s; background: #ffc857; box-shadow: 0 0 12px #ffc857; }
+.visual-innovate .s3 { left: 88%; bottom: 0; animation-delay: 2s; background: #ff6655; box-shadow: 0 0 12px #ff6655; }
+@keyframes sparkRise {
+  0%   { transform: translateY(0)    scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-110px) scale(0.2); opacity: 0; }
+}
+
+/* 02 Design – schematic trace draw */
+.visual-design { display: grid; place-items: center; }
+.visual-design svg {
+  width: 92%;
+  height: 92%;
+  fill: none;
+  stroke: #00f5ff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.6));
+}
+.visual-design svg path {
+  stroke-dasharray: 360;
+  stroke-dashoffset: 360;
+  animation: schemDraw 4s ease-in-out infinite;
+}
+.visual-design svg rect {
+  stroke: #ffc857;
+  fill: rgba(255, 200, 87, 0.08);
+  animation: chipBlink 3s ease-in-out infinite;
+}
+.visual-design svg circle { fill: #00f5ff; }
+@keyframes schemDraw {
+  0%   { stroke-dashoffset: 360; }
+  60%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes chipBlink {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 200, 87, 0.4)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(255, 200, 87, 0.95)); }
+}
+
+/* 03 Develop – streaming code bars + heartbeat dot */
+.visual-develop {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+}
+.code-strip { display: grid; gap: 6px; }
+.code-strip span {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(0, 245, 255, 0.55), rgba(0, 245, 255, 0));
+  animation: codeFlow 2.4s ease-in-out infinite;
+}
+.code-strip span:nth-child(1) { width: 72%;  animation-delay: 0.0s; }
+.code-strip span:nth-child(2) { width: 48%;  animation-delay: 0.15s; }
+.code-strip span:nth-child(3) { width: 86%;  animation-delay: 0.30s; }
+.code-strip span:nth-child(4) { width: 60%;  animation-delay: 0.45s; }
+.code-strip span:nth-child(5) { width: 38%;  animation-delay: 0.60s; }
+@keyframes codeFlow {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50%      { opacity: 1;   transform: translateX(8px); }
+}
+.pulse-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff6655;
+  box-shadow: 0 0 18px #ff6655;
+  animation: heartBeat 1.4s ease-in-out infinite;
+}
+@keyframes heartBeat {
+  0%, 100% { transform: scale(0.85); }
+  30%      { transform: scale(1.25); }
+  50%      { transform: scale(0.95); }
+  70%      { transform: scale(1.15); }
+}
+
+/* 04 Educate – knowledge graph */
+.visual-educate { position: relative; }
+.visual-educate .node {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff, #00f5ff 60%, transparent 80%);
+  box-shadow: 0 0 14px #00f5ff;
+  animation: nodeGlow 2.6s ease-in-out infinite;
+}
+.visual-educate .n1 { top: 50%; left: 10%;  transform: translateY(-50%); }
+.visual-educate .n2 { top: 22%; left: 38%; animation-delay: 0.4s; }
+.visual-educate .n3 { top: 75%; left: 58%; animation-delay: 0.8s; background: radial-gradient(circle, #fff, #ffc857 60%, transparent 80%); box-shadow: 0 0 14px #ffc857; }
+.visual-educate .n4 { top: 40%; left: 86%; animation-delay: 1.2s; background: radial-gradient(circle, #fff, #ff6655 60%, transparent 80%); box-shadow: 0 0 14px #ff6655; }
+@keyframes nodeGlow {
+  0%, 100% { transform: scale(0.85); }
+  50%      { transform: scale(1.2); }
+}
+.visual-educate .n1 { transform: translateY(-50%) scale(1); }
+.visual-educate .link {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(0, 245, 255, 0.05), rgba(0, 245, 255, 0.7), rgba(0, 245, 255, 0.05));
+  filter: drop-shadow(0 0 4px rgba(0, 245, 255, 0.6));
+  transform-origin: left center;
+}
+.visual-educate .l1 { top: 50%; left: 12%; width: 28%; transform: rotate(-22deg); }
+.visual-educate .l2 { top: 27%; left: 41%; width: 22%; transform: rotate( 36deg); }
+.visual-educate .l3 { top: 76%; left: 60%; width: 28%; transform: rotate(-30deg); }
+
+/* Responsive — stack on small screens */
+@media (max-width: 900px) {
+  .journey-track::before { left: 22px; }
+  .journey-step { grid-template-columns: 1fr; }
+  .journey-step::after { left: 22px; }
+  .journey-step:nth-child(odd)  .journey-card,
+  .journey-step:nth-child(even) .journey-card {
+    grid-column: 1;
+    margin: 0 0 0 52px;
+  }
 }
