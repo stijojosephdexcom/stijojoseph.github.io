@@ -1410,3 +1410,238 @@ body > footer { position: relative; z-index: 1; }
   .core-chip-logo img,
   .yt-player-glow { animation: none !important; }
 }
+
+
+/* ==========================================================================
+   HERO CHIP SCENE — Bitronix logo as MCU: SENSE → PROCESS (Edge AI) → ACT
+   Replaces the rotating-cube animation with a single, narrative scene.
+   ========================================================================== */
+
+/* Retire the old 3D cube so only one hero animation remains */
+.hero-logo3d { display: none !important; }
+/* Also hide the duplicate logo inside the right-side telemetry device */
+.core-chip-logo { display: none !important; }
+
+.hero-chip-stage {
+  position: relative;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  aspect-ratio: 1;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: drop-shadow(0 30px 60px rgba(0, 245, 255, 0.35));
+}
+
+.chip-scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ---- Aura behind the chip pulses with the processing rhythm ---- */
+.chip-aura {
+  transform-origin: 300px 300px;
+  animation: chipAura 2.6s ease-in-out infinite;
+}
+@keyframes chipAura {
+  0%, 100% { opacity: 0.55; transform: scale(0.95); }
+  50%      { opacity: 1;    transform: scale(1.1); }
+}
+
+/* ---- Sensor nodes blink as if reading data ---- */
+.sensor-node circle:last-child {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: sensorBlink 1.6s ease-in-out infinite;
+}
+.sensor-node:nth-of-type(2) circle:last-child { animation-delay: 0.3s; }
+.sensor-node:nth-of-type(3) circle:last-child { animation-delay: 0.6s; }
+@keyframes sensorBlink {
+  0%, 100% { fill: #043a4a;    transform: scale(1); }
+  50%      { fill: #00f5ff;    transform: scale(1.4); }
+}
+
+/* ---- Static input traces given a subtle dashed-flow ---- */
+.in-traces use {
+  stroke-dasharray: 6 4;
+  stroke-dashoffset: 0;
+  animation: traceFlow 3s linear infinite;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 4px rgba(0, 245, 255, 0.55));
+}
+.in-traces use:nth-child(2) { animation-duration: 2.4s; }
+.in-traces use:nth-child(3) { animation-duration: 3.6s; }
+@keyframes traceFlow {
+  to { stroke-dashoffset: -200; }
+}
+
+/* ---- Output rays glow + grow as light pours out ---- */
+.out-rays use {
+  stroke: rgba(255, 200, 87, 0.55);
+  stroke-dasharray: 3 6;
+  filter: drop-shadow(0 0 6px rgba(255, 200, 87, 0.6));
+  animation: rayPulse 2.4s ease-in-out infinite;
+}
+.out-rays use:nth-child(2) { animation-delay: 0.4s; }
+.out-rays use:nth-child(3) { animation-delay: 0.8s; }
+@keyframes rayPulse {
+  0%, 100% { stroke-opacity: 0.35; stroke-width: 1.5; }
+  50%      { stroke-opacity: 0.95; stroke-width: 2.5; }
+}
+
+/* ---- Chip body breathes; processing rectangle pulses ---- */
+.chip-body {
+  filter: drop-shadow(0 0 14px rgba(0, 245, 255, 0.6));
+  animation: chipBreath 3.2s ease-in-out infinite;
+  transform-origin: 300px 300px;
+}
+@keyframes chipBreath {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.45)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(0, 245, 255, 0.95)); }
+}
+.chip-process {
+  transform-origin: 300px 300px;
+  animation: chipProcess 2.4s ease-in-out infinite;
+  stroke-dasharray: 8 6;
+}
+@keyframes chipProcess {
+  0%, 100% { transform: scale(1);    stroke-opacity: 0.4; stroke-dashoffset: 0; }
+  50%      { transform: scale(1.06); stroke-opacity: 1;   stroke-dashoffset: -40; }
+}
+
+/* The brand-logo silicon die — sharp, glowing, with subtle scan tilt */
+.chip-die {
+  filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.85));
+  transform-origin: 300px 300px;
+  animation: dieScan 4s ease-in-out infinite;
+}
+@keyframes dieScan {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 245, 255, 0.6)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(0, 245, 255, 1)); }
+}
+
+/* Chip pins flash as data arrives */
+.chip-pins rect {
+  opacity: 0.55;
+  animation: pinFlash 1.8s ease-in-out infinite;
+}
+.chip-pins rect:nth-child(odd)  { animation-delay: 0.2s; }
+.chip-pins rect:nth-child(3n)   { animation-delay: 0.6s; }
+.chip-pins rect:nth-child(4n)   { animation-delay: 0.9s; }
+@keyframes pinFlash {
+  0%, 100% { opacity: 0.4;  filter: drop-shadow(0 0 0   rgba(0, 245, 255, 0)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 6px rgba(0, 245, 255, 0.9)); }
+}
+
+/* ---- Edge-AI neural overlay — appears in waves while chip "thinks" ---- */
+.ai-net {
+  opacity: 0;
+  transform-origin: 300px 300px;
+  animation: aiThink 4.8s ease-in-out infinite;
+}
+@keyframes aiThink {
+  0%, 18%   { opacity: 0; transform: scale(0.92); }
+  35%, 65%  { opacity: 1; transform: scale(1); }
+  82%, 100% { opacity: 0; transform: scale(1.05); }
+}
+.ai-net circle {
+  animation: aiNeuron 1.4s ease-in-out infinite;
+}
+.ai-net circle:nth-child(2) { animation-delay: 0.1s; }
+.ai-net circle:nth-child(3) { animation-delay: 0.2s; }
+.ai-net circle:nth-child(4) { animation-delay: 0.3s; }
+.ai-net circle:nth-child(5) { animation-delay: 0.4s; }
+.ai-net circle:nth-child(6) { animation-delay: 0.5s; }
+.ai-net circle:nth-child(7) { animation-delay: 0.6s; }
+.ai-net circle:nth-child(8) { animation-delay: 0.7s; }
+.ai-net circle:nth-child(9) { animation-delay: 0.8s; }
+@keyframes aiNeuron {
+  0%, 100% { transform: scale(1);   filter: drop-shadow(0 0 2px rgba(255, 200, 87, 0.5)); }
+  50%      { transform: scale(1.6); filter: drop-shadow(0 0 8px rgba(255, 200, 87, 1)); }
+}
+.ai-net circle { transform-box: fill-box; transform-origin: center; }
+
+/* ---- The world being changed: globe pulses, bulb flares ---- */
+.world-halo {
+  transform-origin: 540px 300px;
+  animation: worldGlow 2.6s ease-in-out infinite;
+}
+@keyframes worldGlow {
+  0%, 100% { opacity: 0.45; transform: scale(0.92); }
+  50%      { opacity: 1;    transform: scale(1.1); }
+}
+.world-bulb {
+  transform-origin: 540px 220px;
+  animation: bulbFlare 2.6s ease-in-out infinite;
+}
+@keyframes bulbFlare {
+  0%, 40%, 100% { opacity: 0.3; transform: scale(0.85); }
+  60%           { opacity: 1;   transform: scale(1.2); }
+}
+
+/* ---- Floor reflection ---- */
+.floor-grid line {
+  animation: floorShimmer 4s ease-in-out infinite;
+}
+.floor-grid line:nth-child(2) { animation-delay: 0.3s; }
+.floor-grid line:nth-child(3) { animation-delay: 0.6s; }
+@keyframes floorShimmer {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 0.7; }
+}
+
+/* ---- Stage label under the SVG ---- */
+.chip-label {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  background: rgba(4, 10, 18, 0.7);
+  backdrop-filter: blur(8px);
+  color: rgba(236, 246, 255, 0.85);
+  font-size: 0.72rem;
+  font-weight: 880;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 245, 255, 0.2);
+}
+.chip-label em {
+  font-style: normal;
+  background: linear-gradient(90deg, #00f5ff, #ffc857);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+.chip-label i {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #00f5ff;
+  box-shadow: 0 0 8px #00f5ff;
+  animation: chipLabelDot 1.4s ease-in-out infinite;
+}
+@keyframes chipLabelDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}
+
+@media (max-width: 720px) {
+  .hero-chip-stage { width: min(420px, 100%); }
+  .chip-label { font-size: 0.62rem; gap: 6px; padding: 6px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-aura, .sensor-node circle, .in-traces use, .out-rays use,
+  .chip-body, .chip-process, .chip-die, .chip-pins rect,
+  .ai-net, .ai-net circle, .world-halo, .world-bulb,
+  .floor-grid line, .chip-label i,
+  .signals circle { animation: none !important; }
+}
